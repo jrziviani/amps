@@ -1,0 +1,5 @@
+.build/
+bin/
+cscope.out
+src/old/
+tags
