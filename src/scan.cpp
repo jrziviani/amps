@@ -136,6 +136,12 @@ namespace volt
             ++position;
         }
 
+        // line ended without a closing =} or %}
+        if (content[position] != '}') {
+            position = confirm_code - 2;
+            return text_block(content, position, true);
+        }
+
         // <= expression => is an alias to <% print expression %>
         metadata.range.end = position;
         if (metadata.type == metatype::ECHO) {
@@ -172,11 +178,14 @@ namespace volt
         size_t initial = position;
 
         if (force) {
-            metadata.range.start++;
             position++;
+            if (initial > 0) {
+                --metadata.range.start;
+                --initial;
+            }
         }
 
-        while (position < content.size() && content[position] != '{') {
+        while (position < content.size() && (content[position] != '{')) {
             if (content[position] == '\n') {
                 line_++;
                 break;
@@ -271,6 +280,7 @@ namespace volt
         if (!it.match('"')) {
             error_.log("expects closing \"");
             data.type = metatype::TEXT;
+            it.skip_all();
             return;
         }
 
@@ -278,6 +288,7 @@ namespace volt
             error_.log("max string length allowed " +
                        to_string(MAX_STRING_LEN));
             data.type = metatype::TEXT;
+            it.skip_all();
             return;
         }
 
@@ -296,6 +307,7 @@ namespace volt
             if (number > (numeric_limits<int>::max() - digit) / 10) {
                 error_.log("only 32-bit numbers allowed");
                 data.type = metatype::TEXT;
+                it.skip_all();
                 return;
             }
             number = number * 10 + digit;
@@ -315,6 +327,7 @@ namespace volt
                 error_.log("max id length allowed: " +
                            to_string(MAX_VAR_LEN));
                 data.type = metatype::TEXT;
+                it.skip_all();
                 return;
             }
             ++len;

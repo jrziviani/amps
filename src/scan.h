@@ -79,6 +79,13 @@ namespace volt
             return data_[cursor_];
         }
 
+        void skip_all() const
+        {
+            while (!is_eol()) {
+                next();
+            }
+        }
+
         bool next() const
         {
             if (cursor_ > data_.size() - 1) {
