@@ -31,6 +31,7 @@ protected:
     {
         files_[0].open("block.1");
         files_[1].open("block.2");
+        files_[2].open("block.3");
     }
 
     void TearDown() override
@@ -60,11 +61,11 @@ TEST_F (scan_test, valid_and_invalid_blocks)
 {
     using volt::metatype;
     std::array<metatype, 25> expected = {
-        metatype::CODE, metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::CODE,
+        metatype::CODE, metatype::CODE, metatype::CODE, metatype::TEXT, metatype::CODE,
         metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
-        metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::CODE, metatype::CODE,
+        metatype::TEXT, metatype::ECHO, metatype::CODE, metatype::CODE, metatype::CODE,
         metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
-        metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::ECHO, metatype::ECHO,
+        metatype::TEXT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
     };
 
     size_t i = 0;
@@ -73,5 +74,193 @@ TEST_F (scan_test, valid_and_invalid_blocks)
         auto &data = scan_.get_metainfo();
 
         EXPECT_EQ(data[0].type, expected[i++]);
+    }
+}
+
+TEST_F (scan_test, find_code_between_trash)
+{
+    using volt::metatype;
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 4);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::ECHO);
+        EXPECT_EQ(data[2].type, metatype::TEXT);
+        EXPECT_EQ(data[3].type, metatype::CODE);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].type, metatype::CODE);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].type, metatype::CODE);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 3);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::CODE);
+        EXPECT_EQ(data[2].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 3);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::ECHO);
+        EXPECT_EQ(data[2].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::ECHO);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::CODE);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 3);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::ECHO);
+        EXPECT_EQ(data[2].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 3);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::CODE);
+        EXPECT_EQ(data[2].type, metatype::TEXT);
+    }
+
+    { //10
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 3);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::CODE);
+        EXPECT_EQ(data[2].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[2], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 2);
+        EXPECT_EQ(data[0].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::TEXT);
     }
 }
