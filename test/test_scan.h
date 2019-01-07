@@ -32,6 +32,7 @@ protected:
         files_[0].open("block.1");
         files_[1].open("block.2");
         files_[2].open("block.3");
+        files_[3].open("block.4");
     }
 
     void TearDown() override
@@ -277,5 +278,264 @@ TEST_F (scan_test, find_code_between_trash)
         EXPECT_EQ(data.size(), 2);
         EXPECT_EQ(data[0].type, metatype::TEXT);
         EXPECT_EQ(data[1].type, metatype::TEXT);
+    }
+}
+
+TEST_F (scan_test, test_scan)
+{
+    using volt::token_types;
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 2);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 8);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::STAR);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[4].type(), token_types::SLASH);
+        EXPECT_EQ(data[0].tokens[5].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[6].type(), token_types::PLUS);
+        EXPECT_EQ(data[0].tokens[7].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::PERCENT);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::STAR);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::PLUS);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::SLASH);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::STRING);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::SLASH);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::STAR);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 1);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::FOR);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::IN);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::IF);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::NE);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 4);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::ELIF);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::EQ);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 2);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::INSERT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 2);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::INSERT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::NUMBER);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 1);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::ENDIF);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 1);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::ELSE);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 1);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::ENDFOR);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 5);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::LEFT_BRACKET);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[4].type(), token_types::RIGHT_BRACKET);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 5);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::LEFT_BRACKET);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[4].type(), token_types::RIGHT_BRACKET);
+    }
+
+    {
+        std::string content;
+        std::getline(files_[3], content);
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+        EXPECT_EQ(data.size(), 1);
+        EXPECT_EQ(data[0].tokens.size(), 11);
+        EXPECT_EQ(data[0].tokens[0].type(), token_types::PRINT);
+        EXPECT_EQ(data[0].tokens[1].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[2].type(), token_types::LEFT_BRACKET);
+        EXPECT_EQ(data[0].tokens[3].type(), token_types::STRING);
+        EXPECT_EQ(data[0].tokens[4].type(), token_types::RIGHT_BRACKET);
+        EXPECT_EQ(data[0].tokens[5].type(), token_types::LEFT_BRACKET);
+        EXPECT_EQ(data[0].tokens[6].type(), token_types::NUMBER);
+        EXPECT_EQ(data[0].tokens[7].type(), token_types::RIGHT_BRACKET);
+        EXPECT_EQ(data[0].tokens[8].type(), token_types::LEFT_BRACKET);
+        EXPECT_EQ(data[0].tokens[9].type(), token_types::IDENTIFIER);
+        EXPECT_EQ(data[0].tokens[10].type(), token_types::RIGHT_BRACKET);
     }
 }
