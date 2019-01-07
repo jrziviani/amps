@@ -60,6 +60,8 @@ TEST_F (scan_test, invalid_to_text_blocks)
 TEST_F (scan_test, valid_and_invalid_blocks)
 {
     using volt::metatype;
+    using testing::StartsWith;
+
     std::array<metatype, 25> expected = {
         metatype::CODE, metatype::CODE, metatype::CODE, metatype::TEXT, metatype::CODE,
         metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
@@ -68,19 +70,32 @@ TEST_F (scan_test, valid_and_invalid_blocks)
         metatype::TEXT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
     };
 
+    std::array<std::string, 25> errors_expected = {
+        "", "", "", "only 32-bit numbers allowed", "",
+        "unexpected character", "", "", "", "",
+        "", "", "", "", "",
+        "", "", "expects =", "expects %", "expects =",
+        "only 32-bit numbers allowed", "", "", "", "",
+    };
+
     size_t i = 0;
-    for (std::string content; std::getline(files_[1], content); ) {
+    for (std::string content; std::getline(files_[1], content); ++i) {
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();
 
-        EXPECT_EQ(data[0].type, expected[i++]);
+        EXPECT_EQ(data[0].type, expected[i]);
+        if (errors_expected[i].size() > 0 || error_.get_last_error_msg().size() > 0) {
+            EXPECT_GT(error_.get_last_error_msg().size(), 0);
+            EXPECT_GT(errors_expected[i].size(), 0);
+            EXPECT_THAT(error_.get_last_error_msg(), StartsWith(errors_expected[i]));
+        }
+        error_.clear();
     }
 }
 
 TEST_F (scan_test, find_code_between_trash)
 {
     using volt::metatype;
-
     {
         std::string content;
         std::getline(files_[2], content);
