@@ -114,7 +114,7 @@ namespace volt
         }
     }
 
-    static std::ostream& operator<<(std::ostream &os, const token_types &type)
+    inline std::ostream& operator<<(std::ostream &os, const token_types &type)
     {
         os << get_token_name(type);
         return os;

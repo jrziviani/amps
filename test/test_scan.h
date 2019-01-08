@@ -49,7 +49,6 @@ TEST_F (scan_test, invalid_to_text_blocks)
 {
     using volt::metatype;
 
-    size_t i = 0;
     for (std::string content; std::getline(files_[0], content); ) {
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();

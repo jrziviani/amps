@@ -20,11 +20,10 @@ namespace volt
     void scan::do_scan(const string &content)
     {
         metainfo_.clear();
-        parse_block(content, 0);
+        parse_block(content);
     }
 
-    void scan::parse_block(const string &content,
-                           std::streamsize size)
+    void scan::parse_block(const string &content)
     {
         for (size_t i = 0; i < content.size(); ++i) {
             metadata mtdt;
@@ -304,7 +303,7 @@ namespace volt
             int digit = it.look() - '0';
             it.next();
 
-            if (number > (numeric_limits<int>::max() - digit) / 10) {
+            if (number > (numeric_limits<int>::max() - digit) / 10UL) {
                 error_.log("only 32-bit numbers allowed");
                 data.type = metatype::TEXT;
                 it.skip_all();

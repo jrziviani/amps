@@ -29,15 +29,6 @@ namespace volt
         std::string data;
         std::vector<token_t> tokens;
     };
-
-    static std::ostream& operator<<(std::ostream &os, const metadata &tpl)
-    {
-        os << "$" << std::to_string(static_cast<uint8_t>(tpl.type)) << "$"
-           << tpl.range.start << "$"
-           << tpl.range.end << "$"
-           << tpl.data << "$";
-        return os;
-    }
 }
 
 #endif // METADATA_H

@@ -25,8 +25,7 @@ namespace volt
         metadata text_block(const std::string &content,
                             size_t &position,
                             bool force);
-        void parse_block(const std::string &content,
-                         std::streamsize size);
+        void parse_block(const std::string &content);
 
         void scan_code(const scan_iterator &it, metadata &data);
         void parse_string(const scan_iterator &it, metadata &data);

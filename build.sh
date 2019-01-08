@@ -16,7 +16,7 @@ build() {
     cd .build
     cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
     [[ $? -eq 0 ]] || exit 1
-    make
+    VERBOSE=1 make
     mv bin ../bin
     cd ..
 }

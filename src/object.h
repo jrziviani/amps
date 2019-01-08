@@ -16,7 +16,7 @@ namespace volt
         BOOL,
     };
 
-    static std::ostream& operator<<(std::ostream &os, const vobject_types &obj)
+    inline std::ostream& operator<<(std::ostream &os, const vobject_types &obj)
     {
         switch (obj) {
             case vobject_types::BOOL:
