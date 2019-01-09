@@ -12,7 +12,7 @@ project (volt VERSION 0.0
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fprofile-arcs -ftest-coverage")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 
 #-----------------------------------------
 # It's not ready even for Linux...
@@ -25,7 +25,6 @@ endif()
 # Binary directories
 #-----------------------------------------
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 #-----------------------------------------
 # Not sure if I'll keep this
@@ -40,4 +39,9 @@ configure_file (
 #-----------------------------------------
 add_subdirectory(lib)
 add_subdirectory(src)
+
+#-----------------------------------------
+# Setup main directories
+#-----------------------------------------
+enable_testing()
 add_subdirectory(test)

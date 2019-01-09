@@ -57,11 +57,27 @@ namespace volt
 
     bool engine::compile()
     {
+        /*
         user_map ht {
             {"name", "Jose"},
             {"age", number_t(39 * 44)},
             {"cities", vector<string>{"Sao Paulo", "Paris", "NYC"}},
             {"likes", unordered_map<string, string>{{"movie", "matrix"}, {"song", "gnr"}}}
+        };
+        */
+        user_map ht {
+              {"name", "Jose"},
+              {"cities", vector<string>{
+                     "Sao Paulo",
+                     "Paris",
+                     "NYC",
+                     "London",
+                     "Lisbon"}},
+              {"songs", unordered_map<string, string>{
+                    {"guns and roses", "patience"},
+                    {"aerosmith", "crazy"},
+                    {"led zeppelin", "immigrant song"},
+                    {"pink floyd", "high hopes"}}},
         };
 
         compiler_.generate(scanner_.get_metainfo(), ht);
@@ -74,7 +90,7 @@ int main()
     volt::error err;
     volt::engine eng(err);
     eng.set_template_directory("/tmp");
-    eng.prepare_template("test.tpl");
+    eng.prepare_template("template.html");
     eng.compile();
 
     return 0;

@@ -1,17 +1,36 @@
 #-----------------------------------------
 # Build test
 #-----------------------------------------
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fprofile-arcs -ftest-coverage")
+
 add_executable(volt_test
                main.cpp
                ../src/scan.cpp
                ../src/token.cpp)
+
 target_link_libraries(volt_test LINK_PUBLIC ${CMAKE_DL_LIBS} gmock_main)
 
-configure_file (
-    "${PROJECT_SOURCE_DIR}/test/block.1"
-    "${CMAKE_BINARY_DIR}/test/block.1"
+add_custom_target(coverage
+    COMMAND ${CMAKE_MAKE_PROGRAM} test
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+add_custom_command(TARGET coverage
+    COMMAND gcovr --root ${CMAKE_SOURCE_DIR}/src
+                  --object-directory ${CMAKE_BINARY_DIR}/test/CMakeFiles/volt_test.dir
+                  #--object-directory ${CMAKE_BINARY_DIR}/bin
+                  --html --html-details -o coverage.html
+    COMMAND echo "Browse to file:///${CMAKE_BINARY_DIR}/test/coverage.html"
+)
+
+add_dependencies(coverage volt_test)
+add_test(NAME test COMMAND volt_test)
+
+add_custom_command(TARGET volt_test POST_BUILD
+    COMMAND cp ${CMAKE_SOURCE_DIR}/test/block.* ${CMAKE_BINARY_DIR}/test
+)
+
+set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES coverage)
 
 #-----------------------------------------
 # Google Test Framework

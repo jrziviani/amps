@@ -236,13 +236,6 @@ namespace volt
                     it.next();
                     break;
 
-                // we don't want to have multiline code blocks
-                case '\n':
-                    error_.log("unexpected new line");
-                    data.type = metatype::TEXT;
-                    it.next();
-                    break;
-
                 case '"':
                     parse_string(it, data);
                     break;

@@ -62,20 +62,22 @@ TEST_F (scan_test, valid_and_invalid_blocks)
     using volt::metatype;
     using testing::StartsWith;
 
-    std::array<metatype, 25> expected = {
-        metatype::CODE, metatype::CODE, metatype::CODE, metatype::TEXT, metatype::CODE,
+    std::array<metatype, 28> expected = {
+        metatype::CODE, metatype::TEXT, metatype::CODE, metatype::TEXT, metatype::CODE,
         metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
         metatype::TEXT, metatype::ECHO, metatype::CODE, metatype::CODE, metatype::CODE,
         metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
         metatype::TEXT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
+        metatype::TEXT, metatype::TEXT,
     };
 
-    std::array<std::string, 25> errors_expected = {
-        "", "", "", "only 32-bit numbers allowed", "",
+    std::array<std::string, 28> errors_expected = {
+        "", "max string length allowed 256", "", "only 32-bit numbers allowed", "",
         "unexpected character", "", "", "", "",
         "", "", "", "", "",
         "", "", "expects =", "expects %", "expects =",
         "only 32-bit numbers allowed", "", "", "", "",
+        "max id length allowed:", "",
     };
 
     size_t i = 0;
@@ -90,6 +92,26 @@ TEST_F (scan_test, valid_and_invalid_blocks)
             EXPECT_THAT(error_.get_last_error_msg(), StartsWith(errors_expected[i]));
         }
         error_.clear();
+    }
+
+    {
+        files_[1].clear();
+        files_[1].seekg(0);
+        std::string content(512 + 1, '\0');
+        files_[1].read(&content[0], static_cast<std::streamsize>(512));
+        scan_.do_scan(content);
+        auto &data = scan_.get_metainfo();
+
+        for (size_t i = 0; i < data.size(); ++i) {
+            EXPECT_EQ(data[i].type, expected[i]);
+            /*
+            if (errors_expected[i].size() > 0 || error_.get_last_error_msg().size() > 0) {
+                EXPECT_GT(error_.get_last_error_msg().size(), 0);
+                EXPECT_GT(errors_expected[i].size(), 0);
+                EXPECT_THAT(error_.get_last_error_msg(), StartsWith(errors_expected[i]));
+            }
+            */
+        }
     }
 }
 
