@@ -7,7 +7,6 @@ using namespace std;
 namespace volt
 {
     compiler::compiler(error &err) :
-        jump_(token_types::EOT),
         error_(err)
     {
     }
@@ -33,6 +32,10 @@ namespace volt
             parser_iterator it(metainfo[counter].tokens);
 
             while (!it.is_eot()) {
+                if (cb_) {
+                    cb_(context_);
+                }
+
                 if (!run_statement(it)) {
                     error_.log("Expression", metainfo[counter].data,
                                "cannot be parsed");
@@ -292,6 +295,7 @@ namespace volt
 
         // restart the block execution
         context_.jump_to(counter);
+
 
         return true;
     }

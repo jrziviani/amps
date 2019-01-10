@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace volt
 {
@@ -20,10 +21,10 @@ namespace volt
             bool taken;
         };
 
-        token_types jump_;
         error &error_;
         context context_;
         std::vector<branch> branches_;
+        std::function<void(const context &ctx)> cb_;
 
     private:
         void jump_to(token_types type);
@@ -59,6 +60,12 @@ namespace volt
     public:
         compiler(error &err);
         void generate(const metainfo &metainfo, const user_map &usermap);
+
+        template <typename F>
+        void set_callback(F&& cb)
+        {
+            cb_ = std::forward<F>(cb);
+        }
     };
 
     class parser_iterator
