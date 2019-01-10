@@ -3,6 +3,7 @@
 #include <gmock/gmock.h>
 
 #include "test_scan.h"
+#include "test_compiler.h"
 
 using namespace std;
 
