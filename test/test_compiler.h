@@ -19,14 +19,6 @@ protected:
         scan_(error_),
         compiler_(error_)
     {
-        compiler_.set_callback(std::bind(&compiler_test::check_state,
-                                         this,
-                                         std::placeholders::_1));
-    }
-
-    void check_state(const volt::context &ctx)
-    {
-        //std::cout << ctx.get_counter() << std::endl;
     }
 
     void set_file(const std::string &filename)
@@ -53,21 +45,24 @@ protected:
     {
         compiler_.generate(scan_.get_metainfo(), usermap);
     }
-
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
 };
 
-TEST_F (compiler_test, valid_for)
+TEST_F (compiler_test, valid_for_range)
 {
-    using volt::metatype;
+    using volt::context;
+    using volt::branch;
+    using std::vector;
 
     set_file("code.1");
+
+    int64_t step = 0;
+    compiler_.set_callback([&step](const context &ctx,
+                                   const vector<branch> &branches) {
+        EXPECT_THAT(ctx.environment_check_value("val", step++), true);
+        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().taken, true);
+    });
+
     compile();
 }
 

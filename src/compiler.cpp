@@ -32,10 +32,6 @@ namespace volt
             parser_iterator it(metainfo[counter].tokens);
 
             while (!it.is_eot()) {
-                if (cb_) {
-                    cb_(context_);
-                }
-
                 if (!run_statement(it)) {
                     error_.log("Expression", metainfo[counter].data,
                                "cannot be parsed");
@@ -248,6 +244,10 @@ namespace volt
             return false;
         }
 
+        if (inspect_) {
+            inspect_(context_, branches_);
+        }
+
         return true;
     }
 
@@ -256,6 +256,9 @@ namespace volt
         it.next();
 
         if (branches_.size() > 0 && !branches_.back().taken) {
+            if (inspect_) {
+                inspect_(context_, branches_);
+            }
             branches_.pop_back();
             return true;
         }
@@ -296,6 +299,9 @@ namespace volt
         // restart the block execution
         context_.jump_to(counter);
 
+        if (inspect_) {
+            inspect_(context_, branches_);
+        }
 
         return true;
     }

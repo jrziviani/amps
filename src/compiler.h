@@ -13,18 +13,19 @@ namespace volt
 {
     class parser_iterator;
 
+    struct branch
+    {
+        token_types type;
+        bool taken;
+    };
+
     class compiler
     {
-        struct branch
-        {
-            token_types type;
-            bool taken;
-        };
-
         error &error_;
         context context_;
         std::vector<branch> branches_;
-        std::function<void(const context &ctx)> cb_;
+        std::function<void(const context &,
+                           const std::vector<branch> &)> inspect_;
 
     private:
         void jump_to(token_types type);
@@ -62,9 +63,9 @@ namespace volt
         void generate(const metainfo &metainfo, const user_map &usermap);
 
         template <typename F>
-        void set_callback(F&& cb)
+        void set_callback(F&& callback)
         {
-            cb_ = std::forward<F>(cb);
+            inspect_ = std::forward<F>(callback);
         }
     };
 
