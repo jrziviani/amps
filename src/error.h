@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <functional>
 
 namespace volt
 {
@@ -42,6 +43,22 @@ namespace volt
             }
 
             return errors_.back();
+        }
+
+        std::string get_first_error_msg()
+        {
+            if (errors_.size() == 0) {
+                return "";
+            }
+
+            return errors_[0];
+        }
+
+        void for_each(std::function<void(const std::string&)> fn)
+        {
+            for (const std::string &err : errors_) {
+                fn(err);
+            }
         }
 
         void clear()

@@ -46,7 +46,7 @@ namespace volt
                                          const std::string &user_key);
 
         // methods to handle the context environment lookup table
-        bool environment_is_key_defined(const std::string &key);
+        bool environment_is_key_defined(const std::string &key) const;
         void environment_setup(const user_map &data);
         void environment_add_or_update(const std::string &key,
                                        const user_var &data);
@@ -59,6 +59,9 @@ namespace volt
                                          const std::string &dest_key,
                                          const std::string &value,
                                          size_t index);
+
+        bool environment_check_value(const std::string &key,
+                                     const user_var &data) const;
     };
 
     inline void context::jump_to(size_t n)
@@ -126,7 +129,7 @@ namespace volt
         environment_ = data;
     }
 
-    inline bool context::environment_is_key_defined(const std::string &key)
+    inline bool context::environment_is_key_defined(const std::string &key) const
     {
         if (environment_.find(key) != environment_.end()) {
             return true;

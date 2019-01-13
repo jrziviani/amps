@@ -71,7 +71,7 @@ namespace volt
     }
 
     void context::environment_add_or_update(const std::string &key,
-            const user_var &data)
+                                            const user_var &data)
     {
         if (environment_is_key_defined(key)) {
             environment_[key] = data;
@@ -126,6 +126,20 @@ namespace volt
 
             return 0;
         }, environment_[key]);
+    }
+
+    bool context::environment_check_value(const std::string &key,
+                                          const user_var &value) const
+    {
+        if (!environment_is_key_defined(key)) {
+            return false;
+        }
+
+        if (environment_.find(key)->second != value) {
+            return false;
+        }
+
+        return true;
     }
 
     size_t context::environment_get_size(const std::string &key)
