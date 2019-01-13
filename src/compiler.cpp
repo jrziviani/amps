@@ -173,13 +173,15 @@ namespace volt
             int64_t end   = context_.stack_pop_number_or(0);
             int64_t start = context_.stack_pop_number_or(0);
 
-            if (step == 0 || start >= end) {
+            if (step == 0 || start == end ||
+                (step > 0 && start > end) ||
+                (step < 0 && start < end)) {
                 branches_.push_back(branch{token_types::FOR, false});
                 return true;
             }
 
             vector<int64_t> range;
-            for (; start < end; start += step) {
+            for (; ((step < 0 && start > end) || start < end); start += step) {
                 range.emplace_back(start);
             }
 
@@ -263,8 +265,9 @@ namespace volt
             return true;
         }
 
-        if (branches_.size() > 0 &&
-            branches_.back().type != token_types::FOR) {
+        if (branches_.size() == 0 ||
+            (branches_.size() > 0 &&
+            branches_.back().type != token_types::FOR)) {
             error_.log("expected ENDFOR");
             return false;
         }
