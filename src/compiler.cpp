@@ -40,6 +40,19 @@ namespace volt
                 }
             }
         }
+
+        if (branches_.size() == 0) {
+            return;
+        }
+
+        if (branches_.back().type == token_types::FOR) {
+            error_.log("expected endfor");
+        }
+        else if (branches_.back().type == token_types::IF) {
+            error_.log("expected endif");
+        }
+
+        branches_.clear();
     }
 
     bool compiler::run_statement(parser_iterator &it)
@@ -83,14 +96,14 @@ namespace volt
 
         it.next();
         if (!parse_expression(it)) {
-            cout << "<null>" << endl;
+            cout << "<null>";
             return false;
         }
 
         auto result = context_.stack_pop();
         if (result == nullopt) {
             error_.log("print statement cannot evaluate its parameters");
-            cout << "<null>" << endl;
+            cout << "<null>";
             return false;
         }
 
@@ -140,6 +153,13 @@ namespace volt
                 error_.log("expected an identifier after ','");
                 return false;
             }
+
+            if (context_.environment_is_key_defined(value) ||
+                id_or_key == value) {
+                error_.log("variable", value,
+                           "already exists, name must be unique");
+                return false;
+            }
         }
 
         if (!it.match(token_types::IN)) {
@@ -155,6 +175,11 @@ namespace volt
 
             for (unsigned int i = 0; i < 3; i++) {
                 if (!parse_unary(it)) {
+                    return false;
+                }
+
+                if (context_.stack_top_type() != vobject_types::NUMBER) {
+                    error_.log("range expects only numbers");
                     return false;
                 }
 
@@ -268,7 +293,7 @@ namespace volt
         if (branches_.size() == 0 ||
             (branches_.size() > 0 &&
             branches_.back().type != token_types::FOR)) {
-            error_.log("expected ENDFOR");
+            error_.log("endfor doesn't match a for");
             return false;
         }
 
@@ -607,9 +632,7 @@ namespace volt
             return true;
         }
         else {
-            error_.log("unexpected token found: ",
-                       it.look().type(),
-                       it.look().value().value_or("<null>"));
+            error_.log("unexpected token found:", it.look().type());
 
             return false;
         }

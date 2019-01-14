@@ -54,6 +54,15 @@ namespace volt
             return errors_[0];
         }
 
+        std::string get_error_msg(size_t index)
+        {
+            if (errors_.size() <= index) {
+                return "";
+            }
+
+            return errors_[index];
+        }
+
         void for_each(std::function<void(const std::string&)> fn)
         {
             for (const std::string &err : errors_) {
