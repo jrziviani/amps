@@ -96,8 +96,15 @@ namespace volt
 
         it.next();
         if (!parse_expression(it)) {
+            if (inspect_) {
+                inspect_(context_, branches_);
+            }
             cout << "<null>";
             return false;
+        }
+
+        if (inspect_) {
+            inspect_(context_, branches_);
         }
 
         auto result = context_.stack_pop();

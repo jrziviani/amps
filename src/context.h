@@ -32,10 +32,12 @@ namespace volt
         const size_t &get_counter() const;
 
         // methods to handle the context stack
-        vobject_types stack_top_type();
+        vobject_types stack_top_type() const;
         std::string stack_pop_string_or(const std::string &opt);
         number_t stack_pop_number_or(number_t opt);
+        object stack_top() const;
         object stack_pop();
+        bool stack_empty() const;
         bool stack_pop_bool_or(bool opt);
         void stack_push(const object_t &obj);
         void stack_clear();
@@ -74,9 +76,19 @@ namespace volt
         return counter_;
     }
 
-    inline vobject_types context::stack_top_type()
+    inline vobject_types context::stack_top_type() const
     {
         return stack_.look_back().value().get_type();
+    }
+
+    inline object context::stack_top() const
+    {
+        return stack_.look_back();
+    }
+
+    inline bool context::stack_empty() const
+    {
+        return stack_.empty();
     }
 
     inline object context::stack_pop()

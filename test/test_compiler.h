@@ -7,6 +7,8 @@
 #include <array>
 #include <fstream>
 #include <functional>
+#include <iostream>
+#include <sstream>
 
 class compiler_test : public ::testing::Test
 {
@@ -44,6 +46,14 @@ protected:
     void compile(const volt::user_map &usermap)
     {
         compiler_.generate(scan_.get_metainfo(), usermap);
+    }
+
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
     }
 };
 
@@ -181,22 +191,179 @@ TEST_F (compiler_test, test_print)
 {
     using volt::context;
     using volt::branch;
+    using volt::number_t;
+    using volt::object;
+    using volt::vobject_types;
     using std::vector;
 
     set_file("code.print.1");
 
+    std::stringstream ss;
+    std::streambuf *std_out = std::cout.rdbuf();
+    std::cout.rdbuf(ss.rdbuf());
+
+    int64_t step = 0;
+    compiler_.set_callback([&step](const context &ctx,
+                                   const vector<branch> &) {
+        switch (step) {
+            case 0:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::NUMBER);
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), number_t(1));
+                break;
+
+            case 1:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::NUMBER);
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), number_t(10));
+                break;
+
+            case 2:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::NUMBER);
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), number_t(6));
+                break;
+
+            case 3:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::NUMBER);
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), number_t(-48));
+                break;
+
+            case 4: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 5: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 6:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 7:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 8:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 9:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 10:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 11:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 12:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 13:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 14:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::STRING);
+                EXPECT_THAT(ctx.stack_top().value().get_string_or(""), std::string("valval"));
+                break;
+
+            case 15: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 16: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 17:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 18:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 19:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 20:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 21: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 22: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 23:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 24: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 25: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 26: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 27: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+
+            case 28:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::NUMBER);
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 7);
+                break;
+
+            case 29:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 30:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), false);
+                break;
+
+            case 31:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
+                break;
+
+            case 32: //null
+                EXPECT_THAT(ctx.stack_empty(), true);
+                break;
+        }
+        ++step;
+    });
+
     compile();
+
+    std::cout.rdbuf(std_out);
 }
-
-/*
-TEST (compiler_test, valid_for)
-{
-    using volt::metatype;
-
-    compiler_mock mock;
-    mock.set_file("code.for.1");
-    mock.generate(volt::user_map {{"", ""}});
-
-    EXPECT_CALL(mock, run_test(_, _)).Times(4);
-}
-*/

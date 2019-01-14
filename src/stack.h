@@ -19,10 +19,10 @@ namespace volt
         gstack &operator=(gstack&&) = delete;
 
         object pop();
-        object look_back();
+        object look_back() const;
         void push(object_t value);
         void clear();
-        bool empty();
+        bool empty() const;
     };
 
     inline void gstack::push(object_t value)
@@ -41,12 +41,12 @@ namespace volt
         return value;
     }
 
-    inline object gstack::look_back()
+    inline object gstack::look_back() const
     {
         return stack_.back();
     }
 
-    inline bool gstack::empty()
+    inline bool gstack::empty() const
     {
         return stack_.size() == 0;
     }
