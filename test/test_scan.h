@@ -1,5 +1,5 @@
-#include "../src/scan.h"
-#include "../src/error.h"
+#include "../include/scan.h"
+#include "../include/error.h"
 
 #include <string>
 #include <array>

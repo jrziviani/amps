@@ -22,26 +22,24 @@ if(NOT UNIX)
 endif()
 
 #-----------------------------------------
-# Binary directories
-#-----------------------------------------
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/lib)
-
-#-----------------------------------------
 # Not sure if I'll keep this
 #-----------------------------------------
 configure_file (
     "${PROJECT_SOURCE_DIR}/config.h.in"
-    "${PROJECT_SOURCE_DIR}/src/config.h"
+    "${PROJECT_SOURCE_DIR}/include/config.h"
 )
 
 #-----------------------------------------
 # Setup main directories
 #-----------------------------------------
-add_subdirectory(lib)
+add_subdirectory(sample)
 add_subdirectory(src)
 
 #-----------------------------------------
 # Setup main directories
 #-----------------------------------------
-enable_testing()
-add_subdirectory(test)
+option(enable-test "enable-test" OFF)
+if (enable-test)
+    enable_testing()
+    add_subdirectory(test)
+endif(enable-test)

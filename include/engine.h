@@ -24,7 +24,7 @@ namespace volt
 
         void set_template_directory(const std::string &path);
         void prepare_template(const std::string &name);
-        bool compile();
+        bool compile(const user_map &um);
 
         /*
         const error &get_error() const

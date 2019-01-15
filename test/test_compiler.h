@@ -1,7 +1,7 @@
-#include "../src/compiler.h"
-#include "../src/error.h"
-#include "../src/types.h"
-#include "../src/context.h"
+#include "../include/compiler.h"
+#include "../include/error.h"
+#include "../include/types.h"
+#include "../include/context.h"
 
 #include <string>
 #include <array>
@@ -301,6 +301,11 @@ TEST_F (compiler_test, test_for_map)
     EXPECT_THAT(keys.size(), 0);
     EXPECT_THAT(error_.get_error_msg(0), "expect 'in' operator after identifier");
     EXPECT_THAT(error_.get_error_msg(4), "variable doct is not defined");
+}
+
+TEST_F (compiler_test, test_if)
+{
+
 }
 
 TEST_F (compiler_test, test_print)
