@@ -187,6 +187,122 @@ TEST_F (compiler_test, skip_for_range)
     compile();
 }
 
+TEST_F (compiler_test, test_for_vector)
+{
+    using volt::context;
+    using volt::branch;
+    using volt::user_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.for.7");
+
+    vector<string> cities = {"São Paulo", "NYC", "Paris", "London", "Lisbon"};
+
+    int64_t step = 0;
+    compiler_.set_callback([&step, &cities](const context &ctx,
+                                   const vector<branch> &branches) {
+        if (!ctx.environment_is_key_defined("var")) {
+            return;
+        }
+
+        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().taken, true);
+        EXPECT_THAT(ctx.environment_check_value("var", cities[step++]), true);
+    });
+
+    user_map um {{"vect", cities}};
+    compile(um);
+
+    EXPECT_THAT(error_.get_error_msg(0), "loop statement requires an identifier");
+    EXPECT_THAT(error_.get_error_msg(0), "loop statement requires an identifier");
+}
+
+TEST_F (compiler_test, test_for_empty_vector)
+{
+    using volt::context;
+    using volt::branch;
+    using volt::user_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.for.8");
+
+    vector<string> cities = {};
+
+    int64_t step = 0;
+    compiler_.set_callback([&step, &cities](const context &,
+                                   const vector<branch> &branches) {
+        if (step > 0) {
+            return;
+        }
+
+        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().taken, false);
+        ++step;
+    });
+
+    std::stringstream ss;
+    std::streambuf *std_out = std::cout.rdbuf();
+    std::cout.rdbuf(ss.rdbuf());
+
+    user_map um {{"vect", cities}};
+    compile(um);
+
+    std::cout.rdbuf(std_out);
+
+    EXPECT_THAT(error_.get_error_msg(0), "variable voct is not defined");
+}
+
+TEST_F (compiler_test, test_for_map)
+{
+    using volt::context;
+    using volt::branch;
+    using volt::user_map;
+    using std::unordered_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.for.9");
+
+    unordered_map<string, string> capitals = {
+        {"Brasil", "Brasilia"},
+        {"USA", "Washington"},
+        {"France", "Paris"},
+        {"England", "London"},
+        {"Portugal", "Lisbon"}};
+
+    vector keys = {"Brasil", "USA", "France", "England", "Portugal"};
+    vector values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
+
+    compiler_.set_callback([&capitals, &keys, &values](
+                const context &ctx,
+                const vector<branch> &branches) {
+        if (!ctx.environment_is_key_defined("key") ||
+            !ctx.environment_is_key_defined("value")) {
+            return;
+        }
+
+        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().taken, true);
+
+        for (auto it = keys.begin(); it != keys.end(); ++it) {
+            if (ctx.environment_check_value("key", *it)) {
+                EXPECT_THAT(ctx.environment_check_value("value", capitals[*it]), true);
+                keys.erase(it);
+                break;
+            }
+        }
+    });
+
+    user_map um {{"dict", capitals}};
+    compile(um);
+
+    EXPECT_THAT(keys.size(), 0);
+    EXPECT_THAT(error_.get_error_msg(0), "expect 'in' operator after identifier");
+    EXPECT_THAT(error_.get_error_msg(4), "variable doct is not defined");
+}
+
 TEST_F (compiler_test, test_print)
 {
     using volt::context;

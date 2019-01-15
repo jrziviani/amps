@@ -101,6 +101,15 @@ namespace volt
                                               const std::string &value,
                                               size_t index)
     {
+        std::string current_key = "";
+        auto current_it = environment_.find(dest_key);
+        if (current_it != environment_.end()) {
+            auto tmp = std::get_if<std::string>(&(current_it->second));
+            if (tmp != nullptr) {
+                current_key = *tmp;
+            }
+        }
+
         return std::visit([&](auto &&var) -> size_t {
             using T = std::decay_t<decltype(var)>;
 
@@ -108,8 +117,24 @@ namespace volt
                           std::is_same_v<T, std::unordered_map<std::string, int64_t>>  ||
                           std::is_same_v<T, std::unordered_map<std::string, std::string>>) {
 
+                size_t old_idx = index;
                 while (index < var.bucket_count()) {
                     auto iter = var.begin(index);
+
+                    for (; iter != var.end(index) && index == old_idx; ++iter) {
+                        if (current_key.size() > 0 &&
+                            iter->first.size() > 0 &&
+                            iter->first != current_key) {
+                            continue;
+                        }
+                        else if (current_key.size() > 0 &&
+                                 iter->first.size() > 0 &&
+                                 iter->first == current_key) {
+                            ++iter;
+                            break;
+                        }
+                        break;
+                    }
 
                     for (; iter != var.end(index); ++iter) {
                         if (iter->first.size() > 0) {

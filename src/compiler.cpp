@@ -311,16 +311,21 @@ namespace volt
         string id        = context_.stack_pop_string_or("");
         string key       = context_.stack_pop_string_or("");
 
-        if (++index >= context_.environment_get_size(key)) {
-            context_.environment_erase(id);
-            branches_.pop_back();
-            return true;
-        }
 
         if (value.size() > 0) {
             index = context_.environment_add_or_update(key, id, value, index);
+            if (index >= context_.environment_get_size(key)) {
+                context_.environment_erase(id);
+                branches_.pop_back();
+                return true;
+            }
         }
         else {
+            if (++index >= context_.environment_get_size(key)) {
+                context_.environment_erase(id);
+                branches_.pop_back();
+                return true;
+            }
             context_.environment_add_or_update(key, id, index);
         }
 
