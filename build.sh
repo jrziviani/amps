@@ -13,9 +13,13 @@ debug() {
     echo "** Building debug binaries             **"
     echo "*****************************************"
     local verbose="$1"
+    local static="$2"
     mkdir -p .build/debug
     cd .build/debug
-    cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ../..
+    cmake -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -Denable-static="$static" ../..
+
     [[ $? -eq 0 ]] || exit 1
     [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || make -j$(nproc)
     mkdir -p ../../bin/debug
@@ -28,11 +32,16 @@ release() {
     echo "** Building release binaries           **"
     echo "*****************************************"
     local verbose="$1"
+    local static="$2"
     mkdir -p .build/release
     cd .build/release
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ../..
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -Denable-static="$static" ../..
+
     [[ $? -eq 0 ]] || exit 1
-    [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || make -j$(nproc)
+    [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || \
+                                       make -j$(nproc)
     mkdir -p ../../bin/release
     cp -a bin/* ../../bin/release
     cd ../..
@@ -42,11 +51,17 @@ coverage() {
     echo "*****************************************"
     echo "** Running test cases                  **"
     echo "*****************************************"
+    local verbose="$1"
+    local static="$2"
     mkdir -p .build/release
     cd .build/release
-    cmake -DCMAKE_BUILD_TYPE=Release -Denable-test=ON ../..
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -Denable-test=ON \
+          -Denable-static="$static" ../..
+
     [[ $? -eq 0 ]] || exit 1
-    make coverage
+    [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
+                                       make coverage
     mkdir -p ../../bin/release
     cp -a bin/* ../../bin/release
     cd ../..
@@ -78,7 +93,7 @@ main() {
     local clear=0
     local debug=0
     local verbose=0
-    local static=0
+    local static="OFF"
 
     while [[ "$1" == --* ]]; do
         local opt="$1"
@@ -101,7 +116,7 @@ main() {
                 release=1
                 ;;
             --static)
-                static=1
+                static="ON"
                 ;;
             --verbose)
                 verbose=1
@@ -116,9 +131,9 @@ main() {
     done
 
     [[ "$rebuild" == 1 || "$clear" == 1 ]] && clean
-    [[ "$test" == 1 ]] && coverage
-    [[ "$debug" == 1 || "$release" == 0 || "$rebuild" == 1 ]] && debug "$verbose"
-    [[ "$release" == 1 || "$rebuild" == 1 ]] && release "$verbose"
+    [[ "$test" == 1 ]] && coverage "$static"
+    [[ "$debug" == 1 || "$release" == 0 || "$rebuild" == 1 ]] && debug "$verbose" "$static"
+    [[ "$release" == 1 || "$rebuild" == 1 ]] && release "$verbose" "$static"
 }
 
 main $@

@@ -7,16 +7,19 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(../include)
 
-add_library(volt SHARED
-            scan.cpp
-            engine.cpp
-            token.cpp
-            compiler.cpp
-            context.cpp)
-
-add_library(volt-static STATIC
-            scan.cpp
-            engine.cpp
-            token.cpp
-            compiler.cpp
-            context.cpp)
+option(enable-static "enable-static" OFF)
+if (enable-static)
+    add_library(volt-static STATIC
+                scan.cpp
+                engine.cpp
+                token.cpp
+                compiler.cpp
+                context.cpp)
+else(enable-static)
+    add_library(volt SHARED
+                scan.cpp
+                engine.cpp
+                token.cpp
+                compiler.cpp
+                context.cpp)
+endif(enable-static)
