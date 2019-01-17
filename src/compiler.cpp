@@ -1,6 +1,9 @@
 #include "compiler.h"
+#include "scan.h"
+#include "fileops.h"
 
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -11,7 +14,7 @@ namespace volt
     {
     }
 
-    void compiler::generate(const metainfo &metainfo, const user_map &usermap)
+    void compiler::generate(metainfo &metainfo, const user_map &usermap)
     {
         const size_t &counter = context_.get_counter();
 
@@ -41,7 +44,7 @@ namespace volt
             // execute the program in the meta tags
             parser_iterator it(metainfo[counter].tokens);
             while (!it.is_eot()) {
-                if (!run_statement(it)) {
+                if (!run_statement(it, metainfo)) {
                     context_.stack_clear();
                     break;
                 }
@@ -60,7 +63,7 @@ namespace volt
         }
     }
 
-    bool compiler::run_statement(parser_iterator &it)
+    bool compiler::run_statement(parser_iterator &it, metainfo &metainfo)
     {
         switch (it.look().type()) {
             case token_types::PRINT:
@@ -85,7 +88,7 @@ namespace volt
                 return run_endif(it);
 
             case token_types::INSERT:
-                return run_insert(it);
+                return run_insert(it, metainfo);
 
             default:
                 return false;
@@ -456,12 +459,49 @@ namespace volt
         return true;
     }
 
-    bool compiler::run_insert(parser_iterator &it)
+    bool compiler::run_insert(parser_iterator &it, metainfo &info)
     {
+        it.next();
+
         if (branches_.size() > 0 && !branches_.back().taken) {
             it.skip_all();
             return true;
         }
+
+        if (!it.match(token_types::STRING)) {
+            error_.log("expected file name string");
+            return false;
+        }
+
+        string filename = it.look_back().value().value_or("");
+        if (!is_readable_file(filename)) {
+            error_.log("template", filename, "cannot be accessed");
+            return false;
+        }
+
+        // TODO: check loop
+        scan insert_scan(error_);
+        insert_scan.do_scan(read_full(filename));
+        metainfo &new_info = insert_scan.get_metainfo();
+
+        size_t new_size = new_info.size();
+        copy(info.begin() + context_.get_counter() + 1,
+             info.end(),
+             back_inserter(new_info));
+        info.resize(info.size() + new_size);
+        copy(new_info.begin(),
+             new_info.end(),
+             info.begin() + context_.get_counter());
+
+        /*
+        info.resize(info.size() + new_info.size() + 10);
+        size_t i = context_.get_counter();
+        for (const auto data : new_info) {
+            info[i++] = data;
+        }*/
+
+        // restart the block execution
+        context_.jump_to(context_.get_counter() - 1);
 
         return true;
     }

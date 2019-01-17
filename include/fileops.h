@@ -1,10 +1,12 @@
 #ifndef FILEOPS_H
 #define FILEOPS_H
 
+#include "config.h"
+
+#include <fstream>
+#include <string>
 #ifdef __linux__
     #include <sys/stat.h>
-#else
-    #include <fstream>
 #endif
 
 namespace volt
@@ -48,7 +50,7 @@ namespace volt
 
 #endif
 
-    bool is_readable_directory(const std::string &path)
+    inline bool is_readable_directory(const std::string &path)
     {
         auto dir = check_file(path);
         if (dir.is_directory && dir.is_readable) {
@@ -58,7 +60,7 @@ namespace volt
         return false;
     }
 
-    bool is_readable_file(const std::string &file)
+    inline bool is_readable_file(const std::string &file)
     {
         auto dir = check_file(file);
         if (dir.is_file && dir.is_readable) {
@@ -68,8 +70,20 @@ namespace volt
         return false;
     }
 
-    std::string append(const std::string &path,
-                       const std::string &file)
+    inline std::string read_full(const std::string &filename)
+    {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            return "";
+        }
+
+        std::string content(MAX_READ_SZ + 1, '\0');
+        file.read(&content[0], static_cast<std::streamsize>(MAX_READ_SZ));
+        return content;
+    }
+
+    inline std::string append(const std::string &path,
+                              const std::string &file)
     {
         std::string result = path;
         if (path.back() == '/') {

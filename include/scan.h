@@ -42,10 +42,10 @@ namespace volt
         scan &operator=(vobject &&) = delete;
 
         void do_scan(const std::string &content);
-        const metainfo &get_metainfo() const;
+        metainfo &get_metainfo();
     };
 
-    inline const metainfo &scan::get_metainfo() const
+    inline metainfo &scan::get_metainfo()
     {
         return metainfo_;
     }

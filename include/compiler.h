@@ -39,7 +39,7 @@ namespace volt
         bool parse_unary(parser_iterator &it);
         bool parse_primary(parser_iterator &it);
 
-        bool run_statement(parser_iterator &it);
+        bool run_statement(parser_iterator &it, metainfo &metainfo);
         bool run_print(parser_iterator &it);
         bool run_for(parser_iterator &it);
         bool run_endfor(parser_iterator &it);
@@ -47,7 +47,7 @@ namespace volt
         bool run_else(parser_iterator &it);
         bool run_elif(parser_iterator &it);
         bool run_endif(parser_iterator &it);
-        bool run_insert(parser_iterator &it);
+        bool run_insert(parser_iterator &it, metainfo &metainfo);
 
         object compute(token_types oper);
         object compute_unary(token_types oper);
@@ -60,7 +60,7 @@ namespace volt
 
     public:
         compiler(error &err);
-        void generate(const metainfo &metainfo, const user_map &usermap);
+        void generate(metainfo &metainfo, const user_map &usermap);
 
         template <typename F>
         void set_callback(F&& callback)

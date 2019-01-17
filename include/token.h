@@ -134,8 +134,8 @@ namespace volt
         token_t(token_t &&)             = default;
         ~token_t()                      = default;
 
-        token_t &operator=(token_t &)   = delete;
-        token_t &operator=(token_t &&)  = delete;
+        token_t &operator=(const token_t &)   = default;
+        token_t &operator=(token_t &&)  = default;
 
         std::string to_string() const;
         token_types type() const;
