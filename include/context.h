@@ -4,8 +4,6 @@
 #include "stack.h"
 #include "types.h"
 
-#include <cstdarg>
-
 namespace volt
 {
     class context
@@ -27,11 +25,15 @@ namespace volt
         context &operator=(context&)  = delete;
         context &operator=(context&&) = delete;
 
-        // methods to handle the context (program) counter
+        // --------------------------
+        // handles the prog counter
+        // --------------------------
         void jump_to(size_t n);
         const size_t &get_counter() const;
 
-        // methods to handle the context stack
+        // --------------------------
+        // handles the context stack
+        // --------------------------
         vobject_types stack_top_type() const;
         std::string stack_pop_string_or(const std::string &opt);
         number_t stack_pop_number_or(number_t opt);
@@ -43,27 +45,29 @@ namespace volt
         void stack_clear();
         void stack_push_from_environment(const std::string &key);
         void stack_push_from_environment(const std::string &key,
-                                         size_t index);
+                size_t index);
         void stack_push_from_environment(const std::string &key,
-                                         const std::string &user_key);
+                const std::string &user_key);
 
-        // methods to handle the context environment lookup table
+        // --------------------------
+        // handles the env. table
+        // --------------------------
         bool environment_is_key_defined(const std::string &key) const;
         void environment_setup(const user_map &data);
         void environment_add_or_update(const std::string &key,
-                                       const user_var &data);
+                const user_var &data);
         void environment_add_or_update(const std::string &key,
-                                       const std::string &dest_key,
-                                       size_t index);
+                const std::string &dest_key,
+                size_t index);
         void environment_erase(const std::string &key);
-        size_t environment_get_size(const std::string &key);
+        size_t environment_get_size(const std::string &key) const;
         size_t environment_add_or_update(const std::string &key,
-                                         const std::string &dest_key,
-                                         const std::string &value,
-                                         size_t index);
-
+                const std::string &dest_key,
+                const std::string &value,
+                size_t index);
         bool environment_check_value(const std::string &key,
-                                     const user_var &data) const;
+                const user_var &data) const;
+        void environment_increment_value(const std::string &key);
     };
 
     inline void context::jump_to(size_t n)
@@ -143,11 +147,7 @@ namespace volt
 
     inline bool context::environment_is_key_defined(const std::string &key) const
     {
-        if (environment_.find(key) != environment_.end()) {
-            return true;
-        }
-
-        return false;
+        return environment_.find(key) != environment_.end();
     }
 
     inline void context::environment_erase(const std::string &key)

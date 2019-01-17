@@ -15,44 +15,44 @@ namespace volt
     {
         const size_t &counter = context_.get_counter();
 
-        // add user variables in the global scope
+        // put user data in the environment table
         context_.environment_setup(usermap);
 
+        // program main loop
         for (; counter < metainfo.size(); context_.jump_to(counter + 1)) {
+
+            // text isn't processed so it only verify if the branch it
+            // belongs to has been taken and print it
             if (metainfo[counter].type == metatype::TEXT) {
                 if (metainfo[counter].data.size() > 0) {
-                    if (branches_.size() == 0 ||
-                       (branches_.size() > 0 && branches_.back().taken)) {
+                    if (branches_.size() == 0 || branches_.back().taken) {
                         cout << metainfo[counter].data;
                     }
                 }
+
                 continue;
             }
 
+            // execute the program in the meta tags
             parser_iterator it(metainfo[counter].tokens);
-
             while (!it.is_eot()) {
                 if (!run_statement(it)) {
-                    error_.log("Expression", metainfo[counter].data,
-                               "cannot be parsed");
                     context_.stack_clear();
                     break;
                 }
             }
         }
 
-        if (branches_.size() == 0) {
-            return;
-        }
-
-        if (branches_.back().type == token_types::FOR) {
+        // it's not expected to have any branch left after
+        // program execution
+        if (branches_.size() > 0 && branches_.back().type == token_types::FOR) {
             error_.log("expected endfor");
+            branches_.clear();
         }
-        else if (branches_.back().type == token_types::IF) {
+        else if (branches_.size() > 0 && branches_.back().type == token_types::IF) {
             error_.log("expected endif");
+            branches_.clear();
         }
-
-        branches_.clear();
     }
 
     bool compiler::run_statement(parser_iterator &it)
@@ -174,7 +174,13 @@ namespace volt
             return false;
         }
 
+        // range expects three arguments, values can be negative
+        // for x in range(b, e, s)
+        //                |  |  +> step
+        //                |  +---> end
+        //                +------> begin
         if (it.match(token_types::RANGE) && value.size() == 0) {
+
             if (!it.match(token_types::LEFT_PAREN)) {
                 error_.log("expect '('");
                 return false;
@@ -201,10 +207,13 @@ namespace volt
                 return false;
             }
 
-            int64_t step  = context_.stack_pop_number_or(0);
-            int64_t end   = context_.stack_pop_number_or(0);
-            int64_t start = context_.stack_pop_number_or(0);
+            int64_t step  = static_cast<int64_t>(context_.stack_pop_number_or(0));
+            int64_t end   = static_cast<int64_t>(context_.stack_pop_number_or(0));
+            int64_t start = static_cast<int64_t>(context_.stack_pop_number_or(0));
 
+            // condition is made or impossible to complete,
+            // set the branch to "not taken" and go to the next
+            // block
             if (step == 0 || start == end ||
                 (step > 0 && start > end) ||
                 (step < 0 && start < end)) {
@@ -212,15 +221,13 @@ namespace volt
                 return true;
             }
 
-            vector<int64_t> range;
+            vector<number_t> range;
             for (; ((step < 0 && start > end) || start < end); start += step) {
                 range.emplace_back(start);
             }
 
-            context_.environment_add_or_update(string("range" + id_or_key),
-                                               range);
-            context_.environment_add_or_update(id_or_key, (range.size() > 0) ? range.at(0) : 0);
-
+            context_.environment_add_or_update(string("range" + id_or_key), range);
+            context_.environment_add_or_update(id_or_key, range.at(0));
             context_.stack_push(object_t(string("range" + id_or_key)));
             context_.stack_push(object_t(id_or_key));
             context_.stack_push(object_t(value));
@@ -228,6 +235,10 @@ namespace volt
             context_.stack_push(object_t(context_.get_counter()));
             branches_.push_back(branch{token_types::FOR, true});
         }
+
+        // for item in vector
+        // expects only an identifier that represents a vector<number_t>
+        // or vector<string>
         else if (it.look().type() == token_types::IDENTIFIER && value.size() == 0) {
             string vect = it.look().value().value_or("");
             it.next();
@@ -242,6 +253,7 @@ namespace volt
                 return true;
             }
 
+            context_.environment_add_or_update(string(id_or_key + "_idx"), 0);
             context_.environment_add_or_update(vect, id_or_key, 0);
             context_.stack_push(object_t(vect));
             context_.stack_push(object_t(id_or_key));
@@ -250,6 +262,10 @@ namespace volt
             context_.stack_push(object_t(context_.get_counter()));
             branches_.push_back(branch{token_types::FOR, true});
         }
+
+        // for key, value in table
+        // expects only an identifier that represents an
+        // unordered_map<number_t> or unordered_map<string>
         else if (it.look().type() == token_types::IDENTIFIER && value.size() > 0) {
             string tbl = it.look().value().value_or("");
             it.next();
@@ -266,6 +282,7 @@ namespace volt
 
             number_t index = 0;
             index = context_.environment_add_or_update(tbl, id_or_key, value, index);
+            context_.environment_add_or_update(string(id_or_key + "_idx"), 0);
             context_.stack_push(object_t(tbl));
             context_.stack_push(object_t(id_or_key));
             context_.stack_push(object_t(value));
@@ -306,32 +323,48 @@ namespace volt
 
         // get loop parameters
         number_t counter = context_.stack_pop_number_or(0);
-        number_t index   = context_.stack_pop_number_or(0);
-        string value     = context_.stack_pop_string_or("");
-        string id        = context_.stack_pop_string_or("");
-        string key       = context_.stack_pop_string_or("");
+        number_t index = context_.stack_pop_number_or(0);
+        string value = context_.stack_pop_string_or("");
+        string id_or_key = context_.stack_pop_string_or("");
+        string identifier = context_.stack_pop_string_or("");
 
-
+        // endfor is currently looping a unordered_map (key, value)
         if (value.size() > 0) {
-            index = context_.environment_add_or_update(key, id, value, index);
-            if (index >= context_.environment_get_size(key)) {
-                context_.environment_erase(id);
+            index = context_.environment_add_or_update(identifier,
+                                                       id_or_key,
+                                                       value,
+                                                       index);
+
+            // clean the context after reaching the last item
+            if (index >= context_.environment_get_size(identifier)) {
+                context_.environment_erase(id_or_key);
+                context_.environment_erase(string(id_or_key + "_idx"));
                 branches_.pop_back();
                 return true;
             }
         }
+
+        // endfor is currently looping a vector (or range)
         else {
-            if (++index >= context_.environment_get_size(key)) {
-                context_.environment_erase(id);
+            // clean the context after reaching the last item
+            if (++index >= context_.environment_get_size(identifier)) {
+                context_.environment_erase(id_or_key);
+                context_.environment_erase(string("range" + id_or_key));
+                context_.environment_erase(string(id_or_key + "_idx"));
                 branches_.pop_back();
                 return true;
             }
-            context_.environment_add_or_update(key, id, index);
+
+            // not the last item yet, update the environment
+            context_.environment_add_or_update(identifier, id_or_key, index);
         }
+
+        // add 1 to the hidden counter if exists
+        context_.environment_increment_value(string(id_or_key + "_idx"));
 
         // update the data and push them onto the stack
-        context_.stack_push(object_t(key));
-        context_.stack_push(object_t(id));
+        context_.stack_push(object_t(identifier));
+        context_.stack_push(object_t(id_or_key));
         context_.stack_push(object_t(value));
         context_.stack_push(object_t(index));
         context_.stack_push(object_t(counter));
@@ -363,7 +396,6 @@ namespace volt
 
         bool ret = context_.stack_pop_bool_or(false);
         branches_.push_back(branch{token_types::IF, ret});
-
         return true;
     }
 
@@ -382,7 +414,6 @@ namespace volt
         }
 
         branches_.back().taken = true;
-
         return true;
     }
 
@@ -415,8 +446,8 @@ namespace volt
             error_.log("expected ENDIF, ELSE, or ELIF");
             return false;
         }
-        branches_.pop_back();
 
+        branches_.pop_back();
         return true;
     }
 
@@ -596,13 +627,19 @@ namespace volt
                 return true;
             }
 
+            // evaluate variable[index] or variable["key"]
             if (it.match(token_types::LEFT_BRACKET)) {
+                // push "variable"
                 context_.stack_push(object_t(id));
 
+                // push index or "key"
                 if (!parse_primary(it)) {
                     return false;
                 }
 
+                // pop variable and (index or "key"), look for that
+                // variable[x] in the environment and push it onto
+                // the stack
                 vobject_types tp = context_.stack_top_type();
                 if (tp == vobject_types::STRING) {
                     std::string index = context_.stack_pop_string_or("");
@@ -626,9 +663,12 @@ namespace volt
 
                 return true;
             }
+
+            // evaluate a simple variable
             else {
                 context_.stack_push_from_environment(id);
             }
+
             return true;
         }
         else if (it.match(token_types::LEFT_PAREN)) {
@@ -645,7 +685,6 @@ namespace volt
         }
         else {
             error_.log("unexpected token found:", it.look().type());
-
             return false;
         }
     }

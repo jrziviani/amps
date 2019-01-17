@@ -16,15 +16,12 @@ namespace volt
     using metainfo   = std::vector<metadata>;
     using tokens     = std::vector<token_t>;
 
-    using user_var   = std::variant<uint64_t,
-                                    int64_t,
-                                    std::string,
-                                    std::vector<uint64_t>,
-                                    std::vector<int64_t>,
-                                    std::vector<std::string>,
-                                    std::unordered_map<std::string, uint64_t>,
-                                    std::unordered_map<std::string, int64_t>,
-                                    std::unordered_map<std::string, std::string>>;
+    using user_var   = std::variant<number_t,
+                           std::string,
+                           std::vector<number_t>,
+                           std::vector<std::string>,
+                           std::unordered_map<std::string, number_t>,
+                           std::unordered_map<std::string, std::string>>;
 
     using table      = std::unordered_map<std::string, var_t>;
     using user_map   = std::unordered_map<std::string, user_var>;

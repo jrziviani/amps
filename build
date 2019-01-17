@@ -65,6 +65,20 @@ coverage() {
     mkdir -p ../../bin/release
     cp -a bin/* ../../bin/release
     cd ../..
+
+    mkdir -p .build/debug
+    cd .build/debug
+    cmake -DCMAKE_BUILD_TYPE=Debug \
+          -Denable-test=ON \
+          -Denable-static="$static" ../..
+
+    [[ $? -eq 0 ]] || exit 1
+    [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
+                                       make coverage
+
+    mkdir -p ../../bin/debug
+    cp -a bin/* ../../bin/debug
+    cd ../..
 }
 
 usage() {
@@ -87,6 +101,25 @@ EOF
     exit 1
 }
 
+just_make() {
+    echo "*****************************************"
+    echo "** Make                                **"
+    echo "*****************************************"
+    if [[ -d .build/release ]]; then
+        cd .build/release
+        make -j$(nproc)
+        cp -a bin/* ../../bin/release
+        cd ../..
+    fi
+
+    if [[ -d .build/debug ]]; then
+        cd .build/debug
+        make -j$(nproc)
+        cp -a bin/* ../../bin/debug
+        cd ../..
+    fi
+}
+
 main() {
     local rebuild=0
     local test=0
@@ -94,6 +127,11 @@ main() {
     local debug=0
     local verbose=0
     local static="OFF"
+
+    if [[ -z "$1" ]]; then
+        just_make
+        exit 0
+    fi
 
     while [[ "$1" == --* ]]; do
         local opt="$1"

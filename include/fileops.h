@@ -68,7 +68,8 @@ namespace volt
         return false;
     }
 
-    std::string append(const std::string &path, const std::string &file)
+    std::string append(const std::string &path,
+                       const std::string &file)
     {
         std::string result = path;
         if (path.back() == '/') {

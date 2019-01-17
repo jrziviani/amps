@@ -1,7 +1,6 @@
 #ifndef METADATA_H
 #define METADATA_H
 
-#include <iostream>
 #include <string>
 #include <vector>
 

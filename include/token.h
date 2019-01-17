@@ -86,10 +86,9 @@
     X("size", SIZE)         \
     X("insert", INSERT)
 
-
 namespace volt
 {
-    enum class token_types
+    enum class token_types : uint8_t
     {
     #define X(name) name,
         TOKENS
@@ -98,7 +97,7 @@ namespace volt
         EOT,
     };
 
-    static std::string get_token_name(token_types t)
+    inline std::string get_token_name(token_types t)
     {
         switch (t) {
         #define X(name) case token_types::name: \
@@ -138,30 +137,27 @@ namespace volt
         token_t &operator=(token_t &)   = delete;
         token_t &operator=(token_t &&)  = delete;
 
-        std::string to_string() const
-        {
-            std::string ret = "token: " + get_token_name(type_) +
-                              ", object: " + value_.value_or("<null>");
-            return ret;
-        }
-
-        std::string to_test() const
-        {
-            std::string ret = get_token_name(type_) + "," +
-                              value_.value_or("null");
-            return ret;
-        }
-
-        token_types type() const
-        {
-            return type_;
-        }
-
-        value_t value() const
-        {
-            return value_;
-        }
+        std::string to_string() const;
+        token_types type() const;
+        value_t value() const;
     };
+
+    inline std::string token_t::to_string() const
+    {
+        std::string ret = "token: " + get_token_name(type_) +
+                          ", object: " + value_.value_or("<null>");
+        return ret;
+    }
+
+    inline token_types token_t::type() const
+    {
+        return type_;
+    }
+
+    inline token_t::value_t token_t::value() const
+    {
+        return value_;
+    }
 }
 
 #endif // TOKEN_H

@@ -13,8 +13,8 @@ namespace volt
     }
 
     token_t::token_t(token_types type) :
-            type_(type),
-            value_({})
+        type_(type),
+        value_({})
     {
     }
 }

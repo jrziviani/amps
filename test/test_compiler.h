@@ -121,25 +121,25 @@ TEST_F (compiler_test, invalid_for)
     compile();
 
     EXPECT_THAT(error_.get_first_error_msg(), "expect ','");
-    EXPECT_THAT(error_.get_error_msg(4), "expect ','");
-    EXPECT_THAT(error_.get_error_msg(8), "expect 'in' operator after identifier");
-    EXPECT_THAT(error_.get_error_msg(12), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(16), "expect '('");
-    EXPECT_THAT(error_.get_error_msg(20), "unexpected token found: RIGHT_PAREN");
-    EXPECT_THAT(error_.get_error_msg(24), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(28), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(32), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(36), "range expects only numbers");
-    EXPECT_THAT(error_.get_error_msg(40), "expected closing ')'");
-    EXPECT_THAT(error_.get_error_msg(44), "expected an identifier after ','");
-    EXPECT_THAT(error_.get_error_msg(48), "variable val already exists, name must be unique");
-    EXPECT_THAT(error_.get_error_msg(52), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(56), "variable test is not defined");
-    EXPECT_THAT(error_.get_error_msg(60), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(64), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(68), "variable val already exists, name must be unique");
-    EXPECT_THAT(error_.get_error_msg(72), "endfor doesn't match a for");
-    EXPECT_THAT(error_.get_error_msg(74), "expected endfor");
+    EXPECT_THAT(error_.get_error_msg(2), "expect ','");
+    EXPECT_THAT(error_.get_error_msg(4), "expect 'in' operator after identifier");
+    EXPECT_THAT(error_.get_error_msg(6), "invalid loop");
+    EXPECT_THAT(error_.get_error_msg(8), "expect '('");
+    EXPECT_THAT(error_.get_error_msg(10), "unexpected token found: RIGHT_PAREN");
+    EXPECT_THAT(error_.get_error_msg(12), "loop statement requires an identifier");
+    EXPECT_THAT(error_.get_error_msg(14), "loop statement requires an identifier");
+    EXPECT_THAT(error_.get_error_msg(16), "loop statement requires an identifier");
+    EXPECT_THAT(error_.get_error_msg(18), "range expects only numbers");
+    EXPECT_THAT(error_.get_error_msg(20), "expected closing ')'");
+    EXPECT_THAT(error_.get_error_msg(22), "expected an identifier after ','");
+    EXPECT_THAT(error_.get_error_msg(24), "variable val already exists, name must be unique");
+    EXPECT_THAT(error_.get_error_msg(26), "invalid loop");
+    EXPECT_THAT(error_.get_error_msg(28), "variable test is not defined");
+    EXPECT_THAT(error_.get_error_msg(30), "invalid loop");
+    EXPECT_THAT(error_.get_error_msg(32), "invalid loop");
+    EXPECT_THAT(error_.get_error_msg(34), "variable val already exists, name must be unique");
+    EXPECT_THAT(error_.get_error_msg(36), "endfor doesn't match a for");
+    EXPECT_THAT(error_.get_error_msg(37), "expected endfor");
 }
 
 TEST_F (compiler_test, nested_range)
@@ -300,7 +300,7 @@ TEST_F (compiler_test, test_for_map)
 
     EXPECT_THAT(keys.size(), 0);
     EXPECT_THAT(error_.get_error_msg(0), "expect 'in' operator after identifier");
-    EXPECT_THAT(error_.get_error_msg(4), "variable doct is not defined");
+    EXPECT_THAT(error_.get_error_msg(2), "variable doct is not defined");
 }
 
 TEST_F (compiler_test, test_if)

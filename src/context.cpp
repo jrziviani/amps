@@ -2,30 +2,38 @@
 
 namespace volt
 {
+    using v_number = std::vector<number_t>;
+    using v_string = std::vector<std::string>;
+    using m_number = std::unordered_map<std::string, number_t>;
+    using m_string = std::unordered_map<std::string, std::string>;
+
     void context::stack_push_from_environment(const std::string &key)
     {
-        // get the variable 'environment_[key]' and push it
+        // simply push the value of environment_[key] onto the stack
+        // this method only handles string and number value types
         std::visit([&](auto &&var) {
             using T = std::decay_t<decltype(var)>;
 
-            if constexpr (std::is_same_v<T, uint64_t> ||
+            if constexpr (std::is_same_v<T, number_t> ||
                           std::is_same_v<T, std::string>) {
                 stack_push(object_t(var));
-            }
-            else if constexpr (std::is_same_v<T, int64_t>) {
-                stack_push(object_t(static_cast<uint64_t>(var)));
             }
         }, environment_[key]);
     }
 
-    void context::stack_push_from_environment(const std::string &key, size_t index)
+    void context::stack_push_from_environment(const std::string &key,
+                                              size_t index)
     {
-        // get the variable 'environment_[key][index]' and push it
+        // simply push the value of environment_[key] onto the stack
+        // this method handles vector<string> and vector<number_t>
+        // values, so the index of that vector is also required
         std::visit([&](auto &&var) {
             using T = std::decay_t<decltype(var)>;
 
-            if constexpr (std::is_same_v<T, std::vector<uint64_t>> ||
-                          std::is_same_v<T, std::vector<std::string>>) {
+            if constexpr (std::is_same_v<T, v_number> ||
+                          std::is_same_v<T, v_string>) {
+
+                // make sure we're not accessing out of bounds item
                 if (index >= var.size()) {
                     stack_push(object_t(std::string("<null>")));
                 }
@@ -33,38 +41,27 @@ namespace volt
                     stack_push(object_t(var.at(index)));
                 }
             }
-            else if constexpr (std::is_same_v<T, std::vector<int64_t>>) {
-                if (index >= var.size()) {
-                    stack_push(object_t(std::string("<null>")));
-                }
-                else {
-                    stack_push(object_t(static_cast<uint64_t>(var.at(index))));
-                }
-            }
         }, environment_[key]);
     }
 
-    void context::stack_push_from_environment(const std::string &key, const std::string &user_key)
+    void context::stack_push_from_environment(const std::string &key,
+                                              const std::string &user_key)
     {
-        // get the variable 'environment_[key][user_key]' and push it
+        // simply push the value of environment_[key] onto the stack
+        // this method handles map<string, string> and map<string, number_t>
+        // values, so the key of that map is also required
         std::visit([&](auto &&var) {
             using T = std::decay_t<decltype(var)>;
 
-            if constexpr (std::is_same_v<T, std::unordered_map<std::string, uint64_t>> ||
-                          std::is_same_v<T, std::unordered_map<std::string, std::string>>) {
+            if constexpr (std::is_same_v<T, m_number> ||
+                          std::is_same_v<T, m_string>) {
+
+                // make sure that the key exists
                 if (var.find(user_key) == var.end()) {
                     stack_push(object_t(std::string("<null>")));
                 }
                 else {
                     stack_push(object_t(var[user_key]));
-                }
-            }
-            else if constexpr (std::is_same_v<T, std::unordered_map<std::string, int64_t>>) {
-                if (var.find(user_key) == var.end()) {
-                    stack_push(object_t(std::string("<null>")));
-                }
-                else {
-                    stack_push(object_t(static_cast<uint64_t>(var[user_key])));
                 }
             }
         }, environment_[key]);
@@ -88,9 +85,8 @@ namespace volt
         std::visit([&](auto &&var) {
             using T = std::decay_t<decltype(var)>;
 
-            if constexpr (std::is_same_v<T, std::vector<uint64_t>> ||
-                          std::is_same_v<T, std::vector<int64_t>>  ||
-                          std::is_same_v<T, std::vector<std::string>>) {
+            if constexpr (std::is_same_v<T, v_number> ||
+                          std::is_same_v<T, v_string>) {
                 environment_add_or_update(dest_key, var.at(index));
             }
         }, environment_[key]);
@@ -102,51 +98,56 @@ namespace volt
                                               size_t index)
     {
         std::string current_key = "";
-        auto current_it = environment_.find(dest_key);
-        if (current_it != environment_.end()) {
-            auto tmp = std::get_if<std::string>(&(current_it->second));
-            if (tmp != nullptr) {
-                current_key = *tmp;
+        auto it = environment_.find(dest_key);
+        if (it != environment_.end()) {
+            auto try_string = std::get_if<std::string>(&(it->second));
+            if (try_string != nullptr) {
+                current_key = *try_string;
             }
         }
 
         return std::visit([&](auto &&var) -> size_t {
             using T = std::decay_t<decltype(var)>;
 
-            if constexpr (std::is_same_v<T, std::unordered_map<std::string, uint64_t>> ||
-                          std::is_same_v<T, std::unordered_map<std::string, int64_t>>  ||
-                          std::is_same_v<T, std::unordered_map<std::string, std::string>>) {
+            if constexpr (std::is_same_v<T, m_number> ||
+                          std::is_same_v<T, m_string>) {
 
-                size_t old_idx = index;
-                while (index < var.bucket_count()) {
-                    auto iter = var.begin(index);
-
-                    for (; iter != var.end(index) && index == old_idx; ++iter) {
-                        if (current_key.size() > 0 &&
-                            iter->first.size() > 0 &&
-                            iter->first != current_key) {
-                            continue;
-                        }
-                        else if (current_key.size() > 0 &&
-                                 iter->first.size() > 0 &&
-                                 iter->first == current_key) {
-                            ++iter;
-                            break;
-                        }
-                        break;
-                    }
-
-                    for (; iter != var.end(index); ++iter) {
-                        if (iter->first.size() > 0) {
-                            environment_add_or_update(dest_key, iter->first);
-                            environment_add_or_update(value, iter->second);
-                            return index;
-                        }
-                    }
-                    ++index;
+                if (index >= var.bucket_count()) {
+                    return 0;
                 }
 
-                return index;
+                // set the iterator to the next position based on
+                // the last key...
+                auto iter = var.begin(index);
+                if (current_key.size() > 0) {
+                    while (iter != var.end(index) && iter->first != current_key) {
+                        ++iter;
+                    }
+
+                    if (iter->first == current_key) {
+                        ++iter;
+                    }
+                }
+
+                // ...and look for the next item in hash after that
+                size_t idx = index;
+                for (; idx < var.bucket_count(); ++idx) {
+                    if (idx > index) {
+                        iter = var.begin(idx);
+                    }
+
+                    for (; iter != var.end(idx); ++iter) {
+                        if (iter->first.size() == 0) {
+                            continue;
+                        }
+
+                        environment_add_or_update(dest_key, iter->first);
+                        environment_add_or_update(value, iter->second);
+                        return idx;
+                    }
+                }
+
+                return idx;
             }
 
             return 0;
@@ -167,23 +168,40 @@ namespace volt
         return true;
     }
 
-    size_t context::environment_get_size(const std::string &key)
+    size_t context::environment_get_size(const std::string &key) const
     {
-        return std::visit([&](auto &&var) -> size_t {
+        if (!environment_is_key_defined(key)) {
+            return 0;
+        }
+
+        return std::visit([](const auto var) -> size_t {
             using T = std::decay_t<decltype(var)>;
 
-            if constexpr (std::is_same_v<T, std::vector<uint64_t>> ||
-                          std::is_same_v<T, std::vector<int64_t>>  ||
-                          std::is_same_v<T, std::vector<std::string>>) {
+            if constexpr (std::is_same_v<T, v_number> ||
+                          std::is_same_v<T, v_string>) {
                 return var.size();
             }
-            else if constexpr (std::is_same_v<T, std::unordered_map<std::string, uint64_t>> ||
-                               std::is_same_v<T, std::unordered_map<std::string, int64_t>>  ||
-                               std::is_same_v<T, std::unordered_map<std::string, std::string>>) {
+            else if constexpr (std::is_same_v<T, m_number> ||
+                               std::is_same_v<T, m_string>) {
                 return var.bucket_count();
             }
 
             return 0;
+        }, environment_.find(key)->second);
+    }
+
+    void context::environment_increment_value(const std::string &key)
+    {
+        if (!environment_is_key_defined(key)) {
+            return;
+        }
+
+        std::visit([](auto &&var) {
+            using T = std::decay_t<decltype(var)>;
+
+            if constexpr (std::is_same_v<T, number_t>) {
+                var++;
+            }
         }, environment_[key]);
     }
 }

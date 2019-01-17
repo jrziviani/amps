@@ -3,11 +3,14 @@
 
 #include <string>
 #include <variant>
+#include <iostream>
 
 namespace volt
 {
     using number_t = uint64_t;
-    using var_t    = std::variant<bool, number_t, std::string>;
+    using var_t    = std::variant<bool,
+                                  number_t,
+                                  std::string>;
 
     enum class vobject_types : uint8_t
     {
@@ -117,10 +120,9 @@ namespace volt
 
             case vobject_types::STRING:
                 return get_string_or("");
-
-            default:
-                return "<null>";
         }
+
+        return "<null>";
     }
 }
 
