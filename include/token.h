@@ -3,6 +3,7 @@
 
 #include <string>
 #include <optional>
+#include <functional>
 
 #define TOKENS              \
     X(IDENTIFIER)           \
@@ -140,7 +141,15 @@ namespace volt
         std::string to_string() const;
         token_types type() const;
         value_t value() const;
+
+        size_t hash() const;
     };
+
+    inline size_t token_t::hash() const
+    {
+        std::hash<std::string> hash_string;
+        return hash_string(to_string());
+    }
 
     inline std::string token_t::to_string() const
     {

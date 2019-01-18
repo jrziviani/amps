@@ -13,7 +13,6 @@
 
 namespace volt
 {
-    using metainfo   = std::vector<metadata>;
     using tokens     = std::vector<token_t>;
 
     using user_var   = std::variant<number_t,

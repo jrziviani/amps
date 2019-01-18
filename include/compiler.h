@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <unordered_map>
 
 namespace volt
 {
@@ -19,11 +20,21 @@ namespace volt
         bool taken;
     };
 
+    struct block_cache
+    {
+        size_t start;
+        size_t end;
+        size_t resume;
+    };
+
     class compiler
     {
         error &error_;
+        bool running_cache_;
+        size_t current_cache_;
         context context_;
         std::vector<branch> branches_;
+        std::unordered_map<size_t, block_cache> cache_;
         std::function<void(const context &,
                            const std::vector<branch> &)> inspect_;
 

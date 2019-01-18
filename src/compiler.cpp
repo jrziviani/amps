@@ -10,7 +10,9 @@ using namespace std;
 namespace volt
 {
     compiler::compiler(error &err) :
-        error_(err)
+        error_(err),
+        running_cache_(false),
+        current_cache_(0)
     {
     }
 
@@ -23,6 +25,11 @@ namespace volt
 
         // program main loop
         for (; counter < metainfo.size(); context_.jump_to(counter + 1)) {
+
+            if (running_cache_ && cache_[current_cache_].end == counter) {
+                context_.jump_to(cache_[current_cache_].resume);
+                continue;
+            }
 
             // text isn't processed so it only verify if the branch it
             // belongs to has been taken and print it
@@ -484,24 +491,35 @@ namespace volt
         insert_scan.do_scan(read_full(filename));
         metainfo &new_info = insert_scan.get_metainfo();
 
-        size_t new_size = new_info.size();
-        copy(info.begin() + context_.get_counter() + 1,
-             info.end(),
-             back_inserter(new_info));
-        info.resize(info.size() + new_size);
-        copy(new_info.begin(),
-             new_info.end(),
-             info.begin() + context_.get_counter());
+        auto cache_it = cache_.find(new_info.hash());
+        if (cache_it == cache_.end()) {
+            cache_[new_info.hash()] = block_cache{context_.get_counter() - 1,
+                                                  new_info.size(),
+                                                  0};
 
-        /*
-        info.resize(info.size() + new_info.size() + 10);
-        size_t i = context_.get_counter();
-        for (const auto data : new_info) {
-            info[i++] = data;
-        }*/
+            size_t new_size = new_info.size();
+            copy(info.begin() + context_.get_counter() + 1,
+                    info.end(),
+                    back_inserter(new_info));
+            info.resize(info.size() + new_size);
+            copy(new_info.begin(),
+                    new_info.end(),
+                    info.begin() + context_.get_counter());
 
-        // restart the block execution
-        context_.jump_to(context_.get_counter() - 1);
+            // restart the block execution
+            context_.jump_to(context_.get_counter() - 1);
+        }
+        else {
+            // remote the "insert" code...
+            info.remove(context_.get_counter());
+
+            // ...and execute the cached code
+            cache_it->second.resume = context_.get_counter() - 1;
+            context_.jump_to(cache_it->second.start);
+
+            running_cache_ = true;
+            current_cache_ = cache_it->first;
+        }
 
         return true;
     }

@@ -37,7 +37,7 @@ namespace volt
                 mtdt = text_block(content, i, false);
             }
 
-            metainfo_.emplace_back(mtdt);
+            metainfo_.add_metadata(mtdt);
 
             // text blocks don't require special treatment
             if (mtdt.type == metatype::TEXT) {
@@ -45,7 +45,7 @@ namespace volt
             }
 
             // on the other hand, code blocks is scanned and
-            // tokenized into metainfo_
+            // tokenized into metainfo
             // NOTE: code block will be reverted to text block
             //       if it finds any issue during this phase
             scan_iterator it(mtdt.data);
@@ -63,6 +63,7 @@ namespace volt
         // IMPORTANT: empty space between opening and closing tags
 
         metadata metadata = {
+            0,
             metatype::CODE,
             {position, position},
             "",
@@ -166,6 +167,7 @@ namespace volt
                               bool force)
     {
         metadata metadata = {
+            0,
             metatype::TEXT,
             {position, position},
             "",
@@ -224,7 +226,7 @@ namespace volt
             switch(token) {
 
             #define X(tk, name) case tk:                          \
-                data.tokens.emplace_back(token_t(token_types::name)); \
+                data.add_token(token_t(token_types::name)); \
                 it.next();                                            \
                 break;
                 SINGLE_TOKEN
@@ -285,7 +287,7 @@ namespace volt
         }
 
         string str = (len == 0) ? "" : it.substr(start, len);
-        data.tokens.emplace_back(token_t(token_types::STRING, str));
+        data.add_token(token_t(token_types::STRING, str));
     }
 
     void scan::parse_number(const scan_iterator &it, metadata &data)
@@ -305,7 +307,7 @@ namespace volt
             number = number * 10 + digit;
         }
 
-        data.tokens.emplace_back(token_t(token_types::NUMBER,
+        data.add_token(token_t(token_types::NUMBER,
                                          to_string(number)));
     }
 
@@ -328,10 +330,10 @@ namespace volt
 
         const string &text = it.substr(start, len);
         if (keywords_.find(text) != keywords_.end()) {
-            data.tokens.emplace_back(token_t(keywords_[text]));
+            data.add_token(token_t(keywords_[text]));
         }
         else {
-            data.tokens.emplace_back(token_t(token_types::IDENTIFIER, text));
+            data.add_token(token_t(token_types::IDENTIFIER, text));
         }
     }
 }
