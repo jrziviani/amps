@@ -13,6 +13,7 @@ namespace volt
         TEXT,
         CODE,
         ECHO,
+        COMMENT,
     };
 
     struct metarange

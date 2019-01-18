@@ -33,6 +33,11 @@ namespace volt
                 continue;
             }
 
+            // ignore comment metatypes
+            else if (metainfo[counter].type == metatype::COMMENT) {
+                continue;
+            }
+
             // execute the program in the meta tags
             parser_iterator it(metainfo[counter].tokens);
             while (!it.is_eot()) {
@@ -684,7 +689,12 @@ namespace volt
             return true;
         }
         else {
-            error_.log("unexpected token found:", it.look().type());
+            if (it.is_eot()) {
+                error_.log("No token found");
+            }
+            else {
+                error_.log("unexpected token found:", it.look().type());
+            }
             return false;
         }
     }

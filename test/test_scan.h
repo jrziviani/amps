@@ -37,12 +37,33 @@ TEST_F (scan_test, invalid_to_text_blocks)
 {
     using volt::metatype;
 
+    size_t step = 0;
     std::ifstream file("block.1");
     for (std::string content; std::getline(file, content); ) {
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();
 
-        EXPECT_EQ(data[0].type, metatype::TEXT);
+        switch (step++) {
+            case 0:
+            case 15:
+            case 16:
+                EXPECT_EQ(data[0].type, metatype::CODE);
+                break;
+
+            case 18:
+            case 22:
+            case 23:
+                EXPECT_EQ(data[0].type, metatype::COMMENT);
+                break;
+
+            case 24:
+                EXPECT_EQ(data[0].type, metatype::ECHO);
+                break;
+
+            default:
+                EXPECT_EQ(data[0].type, metatype::TEXT);
+                break;
+        }
     }
 }
 
@@ -52,8 +73,8 @@ TEST_F (scan_test, valid_and_invalid_blocks_all)
     using testing::StartsWith;
 
     std::array<metatype, 28> expected = {
-        metatype::CODE, metatype::TEXT, metatype::CODE, metatype::TEXT, metatype::CODE,
-        metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
+        metatype::CODE, metatype::COMMENT, metatype::CODE, metatype::COMMENT, metatype::CODE,
+        metatype::COMMENT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
         metatype::TEXT, metatype::ECHO, metatype::CODE, metatype::CODE, metatype::CODE,
         metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
         metatype::TEXT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
@@ -78,12 +99,12 @@ TEST_F (scan_test, valid_and_invalid_blocks)
     using testing::StartsWith;
 
     std::array<metatype, 28> expected = {
-        metatype::CODE, metatype::TEXT, metatype::CODE, metatype::TEXT, metatype::CODE,
-        metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
+        metatype::CODE, metatype::COMMENT, metatype::CODE, metatype::COMMENT, metatype::CODE,
+        metatype::COMMENT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
         metatype::TEXT, metatype::ECHO, metatype::CODE, metatype::CODE, metatype::CODE,
         metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
-        metatype::TEXT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
-        metatype::TEXT, metatype::TEXT,
+        metatype::COMMENT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
+        metatype::COMMENT, metatype::TEXT,
     };
 
     std::array<std::string, 28> errors_expected = {
@@ -259,7 +280,7 @@ TEST_F (scan_test, find_code_between_trash)
         auto &data = scan_.get_metainfo();
         EXPECT_EQ(data.size(), 2);
         EXPECT_EQ(data[0].type, metatype::TEXT);
-        EXPECT_EQ(data[1].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::COMMENT);
     }
 
     {
@@ -269,7 +290,7 @@ TEST_F (scan_test, find_code_between_trash)
         auto &data = scan_.get_metainfo();
         EXPECT_EQ(data.size(), 2);
         EXPECT_EQ(data[0].type, metatype::TEXT);
-        EXPECT_EQ(data[1].type, metatype::TEXT);
+        EXPECT_EQ(data[1].type, metatype::COMMENT);
     }
 
     {

@@ -57,9 +57,9 @@ namespace volt
                               size_t &position)
     {
         // a valid code block must respect the following layout
-        // <% statement expression %>
+        // {% statement expression %}
         // or
-        // <= expression =>
+        // {= expression =}
         // IMPORTANT: empty space between opening and closing tags
 
         metadata metadata = {
@@ -112,7 +112,7 @@ namespace volt
                 }
 
                 // any closing match problem
-                //   i.e. <%  => or <=  %>
+                //   i.e. {%  =} or {=  %}
                 // is invalid, the whole content will be handled
                 // as common text
                 else if (content[position - 1] == TAG_ECHO) {
@@ -141,7 +141,7 @@ namespace volt
             return text_block(content, position, true);
         }
 
-        // <= expression => is an alias to <% print expression %>
+        // {= expression =} is an alias to {% print expression %}
         metadata.range.end = position;
         if (metadata.type == metatype::ECHO) {
             metadata.data = "print ";
@@ -249,7 +249,7 @@ namespace volt
                     }
                     else {
                         error_.log("unexpected character", token);
-                        data.type = metatype::TEXT;
+                        data.type = metatype::COMMENT;
                         it.next();
                     }
                     break;
@@ -271,7 +271,7 @@ namespace volt
 
         if (!it.match('"')) {
             error_.log("expects closing \"");
-            data.type = metatype::TEXT;
+            data.type = metatype::COMMENT;
             it.skip_all();
             return;
         }
@@ -279,7 +279,7 @@ namespace volt
         if (len > MAX_STRING_LEN) {
             error_.log("max string length allowed " +
                        to_string(MAX_STRING_LEN));
-            data.type = metatype::TEXT;
+            data.type = metatype::COMMENT;
             it.skip_all();
             return;
         }
@@ -298,7 +298,7 @@ namespace volt
 
             if (number > (numeric_limits<int>::max() - digit) / 10UL) {
                 error_.log("only 32-bit numbers allowed");
-                data.type = metatype::TEXT;
+                data.type = metatype::COMMENT;
                 it.skip_all();
                 return;
             }
@@ -318,7 +318,7 @@ namespace volt
             if (len > MAX_VAR_LEN) {
                 error_.log("max id length allowed: " +
                            to_string(MAX_VAR_LEN));
-                data.type = metatype::TEXT;
+                data.type = metatype::COMMENT;
                 it.skip_all();
                 return;
             }

@@ -57,6 +57,12 @@ protected:
     }
 };
 
+TEST_F (compiler_test, block_test)
+{
+    set_file("block.1");
+    compile();
+}
+
 TEST_F (compiler_test, valid_for_range)
 {
     using volt::context;
@@ -295,8 +301,12 @@ TEST_F (compiler_test, test_for_map)
         }
     });
 
+    std::stringstream ss;
+    std::streambuf *std_out = std::cout.rdbuf();
+    std::cout.rdbuf(ss.rdbuf());
     user_map um {{"dict", capitals}};
     compile(um);
+    std::cout.rdbuf(std_out);
 
     EXPECT_THAT(keys.size(), 0);
     EXPECT_THAT(error_.get_error_msg(0), "expect 'in' operator after identifier");
