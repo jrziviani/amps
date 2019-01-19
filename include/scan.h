@@ -47,6 +47,7 @@ namespace volt
 
     inline metainfo &scan::get_metainfo()
     {
+        metainfo_.rehash();
         return metainfo_;
     }
 

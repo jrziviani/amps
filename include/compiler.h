@@ -25,6 +25,7 @@ namespace volt
         size_t start;
         size_t end;
         size_t resume;
+        size_t iterations;
     };
 
     class compiler

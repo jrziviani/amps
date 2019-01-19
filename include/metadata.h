@@ -24,7 +24,7 @@ namespace volt
 
     struct metadata
     {
-        size_t hash_tokens = 0;
+        size_t hash_tokens;
         metatype type;
         metarange range;
         std::string data;
@@ -41,14 +41,20 @@ namespace volt
 
     class metainfo
     {
-        size_t hash_metadata = 0;
+        size_t hash_metadata;
         std::vector<metadata> metadata_;
 
     public:
         typedef metadata value_type;
 
+        metainfo() :
+            hash_metadata(0)
+        {
+        }
+
         void add_metadata(const metadata &data);
         size_t hash() const;
+        void rehash();
 
         void push_back(const metadata &data);
         metadata &back();
@@ -65,6 +71,12 @@ namespace volt
         std::vector<metadata>::const_iterator end() const noexcept;
     };
 
+    inline void metainfo::rehash()
+    {
+        for (const auto &tk : metadata_) {
+            hash_metadata += tk.hash_tokens;
+        }
+    }
 
     inline void metainfo::remove(size_t idx)
     {

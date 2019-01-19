@@ -23,11 +23,18 @@ namespace volt
         // put user data in the environment table
         context_.environment_setup(usermap);
 
+        cache_[metainfo.hash()] = block_cache{counter - 1,
+                                              metainfo.size() - 1,
+                                              0, 1};
+
         // program main loop
         for (; counter < metainfo.size(); context_.jump_to(counter + 1)) {
 
+            // if we're finished running a cached code, go back to the
+            // place where the cache was executed
             if (running_cache_ && cache_[current_cache_].end == counter) {
                 context_.jump_to(cache_[current_cache_].resume);
+                running_cache_ = false;
                 continue;
             }
 
@@ -241,6 +248,12 @@ namespace volt
                 range.emplace_back(start);
             }
 
+            // cannot pass the max number of configured iterations
+            if (range.size() / step > MAX_ITERATION) {
+                branches_.push_back(branch{token_types::FOR, false});
+                return true;
+            }
+
             context_.environment_add_or_update(string("range" + id_or_key), range);
             context_.environment_add_or_update(id_or_key, range.at(0));
             context_.stack_push(object_t(string("range" + id_or_key)));
@@ -263,7 +276,8 @@ namespace volt
                 return false;
             }
 
-            if (context_.environment_get_size(vect) == 0) {
+            if (context_.environment_get_size(vect) == 0 ||
+                context_.environment_get_size(vect) > MAX_ITERATION) {
                 branches_.push_back(branch{token_types::FOR, false});
                 return true;
             }
@@ -290,7 +304,8 @@ namespace volt
                 return false;
             }
 
-            if (context_.environment_get_size(tbl) == 0) {
+            if (context_.environment_get_size(tbl) == 0 ||
+                context_.environment_get_size(tbl) > MAX_ITERATION) {
                 branches_.push_back(branch{token_types::FOR, false});
                 return true;
             }
@@ -486,17 +501,18 @@ namespace volt
             return false;
         }
 
-        // TODO: check loop
         scan insert_scan(error_);
         insert_scan.do_scan(read_full(filename));
         metainfo &new_info = insert_scan.get_metainfo();
 
         auto cache_it = cache_.find(new_info.hash());
+
+        // the block inserted isn't cached: cache it, put the content in
+        // the current program and execute it
         if (cache_it == cache_.end()) {
             cache_[new_info.hash()] = block_cache{context_.get_counter() - 1,
                                                   new_info.size(),
-                                                  0};
-
+                                                  0, 1};
             size_t new_size = new_info.size();
             copy(info.begin() + context_.get_counter() + 1,
                     info.end(),
@@ -509,9 +525,17 @@ namespace volt
             // restart the block execution
             context_.jump_to(context_.get_counter() - 1);
         }
+
+        // the block is cached: execute it
         else {
-            // remote the "insert" code...
+            // remove the "insert" code...
             info.remove(context_.get_counter());
+
+            if (++cache_it->second.iterations > MAX_ITERATION) {
+                error_.log(filename, "has run for more than",
+                           MAX_ITERATION, ", cannot execute it");
+                return true;
+            }
 
             // ...and execute the cached code
             cache_it->second.resume = context_.get_counter() - 1;
