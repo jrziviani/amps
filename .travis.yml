@@ -1,6 +1,6 @@
 language: cpp
 sudo: required
-dist: bionic
+dist: trusty
 os:
     - linux
 compiler:
@@ -9,6 +9,7 @@ compiler:
 before_install:
     - sudo apt update -qq
 after_success:
+    - bash <(curl -s https://codecov.io/bash) -t 1cf15c36-7686-41d9-99e4-fb530dd096e5
     - lcov --capture --directory . --output-file coverage.info
     - lcov --remove coverage.info '/usr/*' --output-file coverage.info
     - lcov --list coverage.info
@@ -28,9 +29,7 @@ addons:
             - gcovr
             - lcov
 script:
-    - sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
-    - sudo ln -s /usr/bin/g++-7 /usr/local/bin/g++
-    - export CC=/usr/local/bin/gcc
-    - export CXX=/usr/local/bin/g++
+    - export CC=gcc-7
+    - export CXX=g++-7
     - gcc -v && g++ -v && cmake --version
     - ./build --clear --release --debug --test
