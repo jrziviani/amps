@@ -16,7 +16,8 @@ Given a template file and an user data, Volt will use that user data to create a
 A basic template looks like:
 
 ```bash
-% cat template.tpl```
+% cat template.tpl
+```
 
 ```html
 <html>
@@ -62,13 +63,16 @@ A basic template looks like:
         </ul>
         <p>Aerosmith&acute; song: {= songs["aerosmith"] =}.</p>
     </body>
-</html>```
+</html>
+```
 
 ```bash
-% cat include.tpl```
+% cat include.tpl
+```
 
 ```html
-<p>Hello, {= name =}. From include.tpl</p>```
+<p>Hello, {= name =}. From include.tpl</p>
+```
 
 The C++ code is:
 ```cpp
@@ -143,7 +147,8 @@ And expected result is:
         </ul>
         <p>Aerosmith&acute; song: crazy.</p>
     </body>
-</html>```
+</html>
+```
 
 Building
 --------
@@ -151,29 +156,37 @@ Building
 There is a build script provided. Running:
 
 ```bash
-% ./build --release```
+% ./build --release
+```
 
 Will create a folder called bin/release with:
 
-```include.tpl  libvolt.so  template.tpl  volt_sample```
+```bash
+% ls bin/release
+include.tpl  libvolt.so  template.tpl  volt_sample
+```
 
 The file **libvolt.so** is the important thing here, **volt_sample** is an example on how to use that lib. The sample will run with:
 
 ```bash
-% ./volt_sample template.tpl```
+% ./volt_sample template.tpl
+```
 
 It's also possible to create the same objects with debug symbols included:
 
 ```bash
-% ./build --debug```
+% ./build --debug
+```
 
 Or building a static library version for both, cleaning the current tree:
 
 ```bash
-% ./build --clear --debug --release --static```
+% ./build --clear --debug --release --static
+```
 
 Testing
 -------
 
 ```
-% ./build --test```
+% ./build --test
+```
