@@ -1,0 +1,26 @@
+language: cpp
+sudo: required
+dist: xenial
+os:
+    - linux
+compiler:
+    - g++
+    - clang
+
+before_install:
+    - sudo apt update -qq
+    - export CC=gcc-7
+    - export CXX=g++-7
+
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+        packages:
+            - g++-7
+            - clang-5.0
+            - cmake-data
+            - cmake
+
+script: ./build --clear --release --debug --test
