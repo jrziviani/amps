@@ -1,6 +1,6 @@
 #include "token.h"
 
-namespace volt
+namespace amps
 {
     token_t::token_t()
     {

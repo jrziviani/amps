@@ -5,7 +5,7 @@
 #include <array>
 #include <fstream>
 
-class mock_error : public volt::error
+class mock_error : public amps::error
 {
 public:
     mock_error()
@@ -17,7 +17,7 @@ class scan_test : public ::testing::Test
 {
 protected:
     mock_error error_;
-    volt::scan scan_;
+    amps::scan scan_;
 
     scan_test() :
         scan_(error_)
@@ -35,7 +35,7 @@ protected:
 
 TEST_F (scan_test, invalid_to_text_blocks)
 {
-    using volt::metatype;
+    using amps::metatype;
 
     size_t step = 0;
     std::ifstream file("block.1");
@@ -69,7 +69,7 @@ TEST_F (scan_test, invalid_to_text_blocks)
 
 TEST_F (scan_test, valid_and_invalid_blocks_all)
 {
-    using volt::metatype;
+    using amps::metatype;
     using testing::StartsWith;
 
     std::array<metatype, 28> expected = {
@@ -95,7 +95,7 @@ TEST_F (scan_test, valid_and_invalid_blocks_all)
 
 TEST_F (scan_test, valid_and_invalid_blocks)
 {
-    using volt::metatype;
+    using amps::metatype;
     using testing::StartsWith;
 
     std::array<metatype, 28> expected = {
@@ -135,7 +135,7 @@ TEST_F (scan_test, valid_and_invalid_blocks)
 
 TEST_F (scan_test, find_code_between_trash)
 {
-    using volt::metatype;
+    using amps::metatype;
 
     std::ifstream file("block.3");
     {
@@ -324,7 +324,7 @@ TEST_F (scan_test, find_code_between_trash)
 
 TEST_F (scan_test, test_scan)
 {
-    using volt::token_types;
+    using amps::token_types;
 
     std::ifstream file("block.4");
     {

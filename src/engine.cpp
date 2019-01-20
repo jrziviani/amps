@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace volt
+namespace amps
 {
     engine::engine(error &err) :
         path_("."),

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-namespace volt
+namespace amps
 {
     scan::scan(error &err)
         : error_(err)

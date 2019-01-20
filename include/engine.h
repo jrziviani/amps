@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace volt
+namespace amps
 {
     class engine
     {

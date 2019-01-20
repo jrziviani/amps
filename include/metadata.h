@@ -6,7 +6,7 @@
 
 #include "token.h"
 
-namespace volt
+namespace amps
 {
     enum class metatype : uint8_t
     {

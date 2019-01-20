@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    volt::user_map ht {
+    amps::user_map ht {
           {"name", "Jose"},
           {"cities", vector<string>{
                  "Sao Paulo",
@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
                 {"pink floyd", "high hopes"}}},
     };
 
-    volt::error err;
-    volt::engine engine(err);
+    amps::error err;
+    amps::engine engine(err);
     engine.set_template_directory("/tmp");
     engine.prepare_template(argv[1]);
     engine.compile(ht);

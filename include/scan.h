@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace volt
+namespace amps
 {
     class scan_iterator;
 

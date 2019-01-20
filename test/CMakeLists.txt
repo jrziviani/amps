@@ -7,14 +7,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/test)
 
 include_directories(../include)
 
-add_executable(volt_test
+add_executable(amps_test
                main.cpp
                ../src/compiler.cpp
                ../src/context.cpp
                ../src/scan.cpp
                ../src/token.cpp)
 
-target_link_libraries(volt_test LINK_PUBLIC ${CMAKE_DL_LIBS} gmock_main)
+target_link_libraries(amps_test LINK_PUBLIC ${CMAKE_DL_LIBS} gmock_main)
 
 add_custom_target(coverage
     COMMAND ${CMAKE_MAKE_PROGRAM} test
@@ -31,10 +31,10 @@ add_custom_command(TARGET coverage
     COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
 )
 
-add_dependencies(coverage volt_test)
-add_test(NAME test COMMAND volt_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin/test)
+add_dependencies(coverage amps_test)
+add_test(NAME test COMMAND amps_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin/test)
 
-add_custom_command(TARGET volt_test POST_BUILD
+add_custom_command(TARGET amps_test POST_BUILD
     COMMAND cp ${CMAKE_SOURCE_DIR}/test/block.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND cp ${CMAKE_SOURCE_DIR}/test/code.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )

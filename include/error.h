@@ -6,7 +6,7 @@
 #include <sstream>
 #include <functional>
 
-namespace volt
+namespace amps
 {
     class error
     {

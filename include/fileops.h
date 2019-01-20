@@ -9,7 +9,7 @@
     #include <sys/stat.h>
 #endif
 
-namespace volt
+namespace amps
 {
 
     bool dir_exist(const std::string &path);

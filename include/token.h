@@ -87,7 +87,7 @@
     X("size", SIZE)         \
     X("insert", INSERT)
 
-namespace volt
+namespace amps
 {
     enum class token_types : uint8_t
     {

@@ -5,7 +5,7 @@
 #include <variant>
 #include <iostream>
 
-namespace volt
+namespace amps
 {
     using number_t = uint64_t;
     using var_t    = std::variant<bool,

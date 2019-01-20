@@ -2,7 +2,7 @@
 # CMake setup
 #-----------------------------------------
 cmake_minimum_required (VERSION 3.10)
-project (volt VERSION 0.0
+project (amps VERSION 0.0
               DESCRIPTION "Text Template Engine"
               LANGUAGES CXX)
 

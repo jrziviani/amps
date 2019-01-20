@@ -4,7 +4,7 @@
 #include "stack.h"
 #include "types.h"
 
-namespace volt
+namespace amps
 {
     class context
     {

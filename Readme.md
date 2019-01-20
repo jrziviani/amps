@@ -1,4 +1,4 @@
-Volt - Simple Template Engine for C++
+Amps - Simple Template Engine for C++
 =====================================
 
 Index
@@ -14,12 +14,12 @@ Introduction
 
 **IMPORTANT**: It's not even finished yet, so don't use it for anything important.
 
-Volt offers a simple and small text-based template language for general purposes. It's inspired by [Jinja2](http://jinja.pocoo.org) - but light-years away from the quality achieved by Jinja2.
+Amps offers a simple and small text-based template language for general purposes. It's inspired by [Jinja2](http://jinja.pocoo.org) - but light-years away from the quality achieved by Jinja2.
 
 What it does
 ------------
 
-Given a template file and an user data, Volt will use that user data to create a result file based on the template file.
+Given a template file and an user data, Amps will use that user data to create a result file based on the template file.
 
 A basic template looks like:
 
@@ -84,7 +84,7 @@ A basic template looks like:
 
 The C++ code is:
 ```cpp
-volt::user_map ht {
+amps::user_map ht {
               {"name", "Jose"},
               {"cities", vector<string>{
                      "Sao Paulo",
@@ -171,13 +171,13 @@ Will create a folder called bin/release with:
 
 ```shell
 % ls bin/release
-include.tpl  libvolt.so  template.tpl  volt_sample
+include.tpl  libamps.so  template.tpl  amps_sample
 ```
 
-The file **libvolt.so** is the important thing here, **volt_sample** is an example on how to use that lib. The sample will run with:
+The file **libamps.so** is the important thing here, **amps_sample** is an example on how to use that lib. The sample will run with:
 
 ```shell
-% ./volt_sample template.tpl
+% ./amps_sample template.tpl
 ```
 
 It's also possible to create the same objects with debug symbols included:

@@ -1,6 +1,6 @@
 #include "context.h"
 
-namespace volt
+namespace amps
 {
     using v_number = std::vector<number_t>;
     using v_string = std::vector<std::string>;

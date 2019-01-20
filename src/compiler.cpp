@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace volt
+namespace amps
 {
     compiler::compiler(error &err) :
         error_(err),

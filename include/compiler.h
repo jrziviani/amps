@@ -10,7 +10,7 @@
 #include <functional>
 #include <unordered_map>
 
-namespace volt
+namespace amps
 {
     class parser_iterator;
 

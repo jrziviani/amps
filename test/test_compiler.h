@@ -13,9 +13,9 @@
 class compiler_test : public ::testing::Test
 {
 protected:
-    volt::error error_;
-    volt::scan scan_;
-    volt::compiler compiler_;
+    amps::error error_;
+    amps::scan scan_;
+    amps::compiler compiler_;
 
     compiler_test() :
         scan_(error_),
@@ -40,10 +40,10 @@ protected:
 
     void compile()
     {
-        compiler_.generate(scan_.get_metainfo(), volt::user_map {{"", ""}});
+        compiler_.generate(scan_.get_metainfo(), amps::user_map {{"", ""}});
     }
 
-    void compile(const volt::user_map &usermap)
+    void compile(const amps::user_map &usermap)
     {
         compiler_.generate(scan_.get_metainfo(), usermap);
     }
@@ -65,8 +65,8 @@ TEST_F (compiler_test, block_test)
 
 TEST_F (compiler_test, valid_for_range)
 {
-    using volt::context;
-    using volt::branch;
+    using amps::context;
+    using amps::branch;
     using std::vector;
 
     set_file("code.for.1");
@@ -75,7 +75,7 @@ TEST_F (compiler_test, valid_for_range)
     compiler_.set_callback([&step](const context &ctx,
                                    const vector<branch> &branches) {
         EXPECT_THAT(ctx.environment_check_value("val", step++), true);
-        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().type, amps::token_types::FOR);
         EXPECT_THAT(branches.back().taken, true);
     });
 
@@ -84,8 +84,8 @@ TEST_F (compiler_test, valid_for_range)
 
 TEST_F (compiler_test, valid_for_range_neg)
 {
-    using volt::context;
-    using volt::branch;
+    using amps::context;
+    using amps::branch;
     using std::vector;
 
     set_file("code.for.2");
@@ -94,7 +94,7 @@ TEST_F (compiler_test, valid_for_range_neg)
     compiler_.set_callback([&step](const context &ctx,
                                    const vector<branch> &branches) {
         EXPECT_THAT(ctx.environment_check_value("ident", step), true);
-        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().type, amps::token_types::FOR);
         EXPECT_THAT(branches.back().taken, true);
         step += 2;
     });
@@ -104,8 +104,8 @@ TEST_F (compiler_test, valid_for_range_neg)
 
 TEST_F (compiler_test, valid_for_range_reverse)
 {
-    using volt::context;
-    using volt::branch;
+    using amps::context;
+    using amps::branch;
     using std::vector;
 
     set_file("code.for.3");
@@ -114,7 +114,7 @@ TEST_F (compiler_test, valid_for_range_reverse)
     compiler_.set_callback([&step](const context &ctx,
                                    const vector<branch> &branches) {
         EXPECT_THAT(ctx.environment_check_value("blah", step--), true);
-        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().type, amps::token_types::FOR);
         EXPECT_THAT(branches.back().taken, true);
     });
 
@@ -150,8 +150,8 @@ TEST_F (compiler_test, invalid_for)
 
 TEST_F (compiler_test, nested_range)
 {
-    using volt::context;
-    using volt::branch;
+    using amps::context;
+    using amps::branch;
     using std::vector;
 
     set_file("code.for.5");
@@ -162,13 +162,13 @@ TEST_F (compiler_test, nested_range)
                                             const vector<branch> &branches) {
         if (ctx.environment_is_key_defined("bleh")) {
             EXPECT_THAT(ctx.environment_check_value("bleh", step2++), true);
-            EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+            EXPECT_THAT(branches.back().type, amps::token_types::FOR);
             EXPECT_THAT(branches.back().taken, true);
         }
         else {
             step2 = 0;
             ++step1;
-            EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+            EXPECT_THAT(branches.back().type, amps::token_types::FOR);
             EXPECT_THAT(branches.back().taken, true);
         }
         EXPECT_THAT(ctx.environment_check_value("blah", step1), true);
@@ -179,8 +179,8 @@ TEST_F (compiler_test, nested_range)
 
 TEST_F (compiler_test, skip_for_range)
 {
-    using volt::context;
-    using volt::branch;
+    using amps::context;
+    using amps::branch;
     using std::vector;
 
     set_file("code.for.6");
@@ -195,9 +195,9 @@ TEST_F (compiler_test, skip_for_range)
 
 TEST_F (compiler_test, test_for_vector)
 {
-    using volt::context;
-    using volt::branch;
-    using volt::user_map;
+    using amps::context;
+    using amps::branch;
+    using amps::user_map;
     using std::vector;
     using std::string;
 
@@ -212,7 +212,7 @@ TEST_F (compiler_test, test_for_vector)
             return;
         }
 
-        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().type, amps::token_types::FOR);
         EXPECT_THAT(branches.back().taken, true);
         EXPECT_THAT(ctx.environment_check_value("var", cities[step++]), true);
     });
@@ -226,9 +226,9 @@ TEST_F (compiler_test, test_for_vector)
 
 TEST_F (compiler_test, test_for_empty_vector)
 {
-    using volt::context;
-    using volt::branch;
-    using volt::user_map;
+    using amps::context;
+    using amps::branch;
+    using amps::user_map;
     using std::vector;
     using std::string;
 
@@ -243,7 +243,7 @@ TEST_F (compiler_test, test_for_empty_vector)
             return;
         }
 
-        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().type, amps::token_types::FOR);
         EXPECT_THAT(branches.back().taken, false);
         ++step;
     });
@@ -262,9 +262,9 @@ TEST_F (compiler_test, test_for_empty_vector)
 
 TEST_F (compiler_test, test_for_map)
 {
-    using volt::context;
-    using volt::branch;
-    using volt::user_map;
+    using amps::context;
+    using amps::branch;
+    using amps::user_map;
     using std::unordered_map;
     using std::vector;
     using std::string;
@@ -289,7 +289,7 @@ TEST_F (compiler_test, test_for_map)
             return;
         }
 
-        EXPECT_THAT(branches.back().type, volt::token_types::FOR);
+        EXPECT_THAT(branches.back().type, amps::token_types::FOR);
         EXPECT_THAT(branches.back().taken, true);
 
         for (auto it = keys.begin(); it != keys.end(); ++it) {
@@ -320,11 +320,11 @@ TEST_F (compiler_test, test_if)
 
 TEST_F (compiler_test, test_print)
 {
-    using volt::context;
-    using volt::branch;
-    using volt::number_t;
-    using volt::object;
-    using volt::vobject_types;
+    using amps::context;
+    using amps::branch;
+    using amps::number_t;
+    using amps::object;
+    using amps::vobject_types;
     using std::vector;
 
     set_file("code.print.1");

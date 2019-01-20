@@ -11,7 +11,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace volt
+namespace amps
 {
     using tokens     = std::vector<token_t>;
 

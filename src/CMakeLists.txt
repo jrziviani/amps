@@ -9,14 +9,14 @@ include_directories(../include)
 
 option(enable-static "enable-static" OFF)
 if (enable-static)
-    add_library(volt-static STATIC
+    add_library(amps-static STATIC
                 scan.cpp
                 engine.cpp
                 token.cpp
                 compiler.cpp
                 context.cpp)
 else(enable-static)
-    add_library(volt SHARED
+    add_library(amps SHARED
                 scan.cpp
                 engine.cpp
                 token.cpp

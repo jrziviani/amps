@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-namespace volt
+namespace amps
 {
     class gstack
     {
