@@ -30,7 +30,7 @@ addons:
 script:
     - sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
     - sudo ln -s /usr/bin/g++-7 /usr/local/bin/g++
-    - export CC=gcc-7
-    - export CXX=g++-7
+    - export CC=/usr/local/bin/gcc
+    - export CXX=/usr/local/bin/g++
     - gcc -v && g++ -v && cmake --version
     - ./build --clear --release --debug --test
