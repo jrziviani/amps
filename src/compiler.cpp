@@ -510,20 +510,17 @@ namespace volt
         // the block inserted isn't cached: cache it, put the content in
         // the current program and execute it
         if (cache_it == cache_.end()) {
-            cache_[new_info.hash()] = block_cache{context_.get_counter() - 1,
-                                                  new_info.size(),
+            size_t counter = context_.get_counter();
+            cache_[new_info.hash()] = block_cache{counter - 1,
+                                                  new_info.size() + counter - 1,
                                                   0, 1};
             size_t new_size = new_info.size();
-            copy(info.begin() + context_.get_counter() + 1,
-                    info.end(),
-                    back_inserter(new_info));
+            copy(info.begin() + counter + 1, info.end(), back_inserter(new_info));
             info.resize(info.size() + new_size);
-            copy(new_info.begin(),
-                    new_info.end(),
-                    info.begin() + context_.get_counter());
+            copy(new_info.begin(), new_info.end(), info.begin() + counter);
 
             // restart the block execution
-            context_.jump_to(context_.get_counter() - 1);
+            context_.jump_to(counter - 1);
         }
 
         // the block is cached: execute it
