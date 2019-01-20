@@ -6,12 +6,8 @@ os:
 compiler:
     - g++
     - clang
-
 before_install:
     - sudo apt update -qq
-    - export CC=gcc-7
-    - export CXX=g++-7
-
 addons:
     apt:
         sources:
@@ -19,8 +15,14 @@ addons:
             - llvm-toolchain-trusty-5.0
         packages:
             - g++-7
+            - gcc-7
             - clang-5.0
             - cmake-data
             - cmake
-
-script: ./build --clear --release --debug --test
+script:
+    - ln -s /usr/bin/gcc-7 /usr/loca/bin/gcc
+    - ln -s /usr/bin/g++-7 /usr/loca/bin/g++
+    - export CC=gcc-7
+    - export CXX=g++-7
+    - gcc -v && g++ -v && cmake --version
+    - ./build --clear --release --debug --test
