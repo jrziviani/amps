@@ -8,7 +8,7 @@
     </head>
 
     <body>
-        <p>My name is {% name %}.</p>
+        {% insert "include.tpl" %}
 
         <p>List of cities:</p>
         <ul>
@@ -17,6 +17,8 @@
         {% endfor %}
         </ul>
         <p>The city number 4 (zero-indexed) is {= cities[3] =}</p>
+
+        {% insert "include.tpl" %}
 
         <p>Couting from -5 to +5:</p>
         <ul>
@@ -28,6 +30,8 @@
           {% endif %}
         {% endfor %}
         </ul>
+
+        {% insert "include.tpl" %}
 
         <p>Songs:</p>
         <ul>
