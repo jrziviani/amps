@@ -8,6 +8,11 @@ compiler:
     - clang
 before_install:
     - sudo apt update -qq
+after_success:
+    - lcov --capture --directory . --output-file coverage.info
+    - lcov --remove coverage.info '/usr/*' --output-file coverage.info
+    - lcov --list coverage.info
+    - bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports"
 addons:
     apt:
         sources:
@@ -19,9 +24,12 @@ addons:
             - clang-5.0
             - cmake-data
             - cmake
+            - gcov
+            - gcovr
+            - lcov
 script:
-    - ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
-    - ln -s /usr/bin/g++-7 /usr/local/bin/g++
+    - sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
+    - sudo ln -s /usr/bin/g++-7 /usr/local/bin/g++
     - export CC=gcc-7
     - export CXX=g++-7
     - gcc -v && g++ -v && cmake --version
