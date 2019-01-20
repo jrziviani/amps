@@ -1,10 +1,18 @@
 Volt - Simple Template Engine for C++
 =====================================
 
+Index
+-----
+
+* [Introduction](#Introduction)
+* [What it does](#What-it-does)
+* [Building](#Building)
+* [Testing](#Testing)
+
 Introduction
 ------------
 
-**IMPORTANT**: It's not production ready, it's not even finished yet. So don't use it for anything important.
+**IMPORTANT**: It's not even finished yet, so don't use it for anything important.
 
 Volt offers a simple and small text-based template language for general purposes. It's inspired by [Jinja2](http://jinja.pocoo.org) - but light-years away from the quality achieved by Jinja2.
 
@@ -15,7 +23,7 @@ Given a template file and an user data, Volt will use that user data to create a
 
 A basic template looks like:
 
-```bash
+```shell
 % cat template.tpl
 ```
 
@@ -66,7 +74,7 @@ A basic template looks like:
 </html>
 ```
 
-```bash
+```shell
 % cat include.tpl
 ```
 
@@ -155,32 +163,32 @@ Building
 
 There is a build script provided. Running:
 
-```bash
+```shell
 % ./build --release
 ```
 
 Will create a folder called bin/release with:
 
-```bash
+```shell
 % ls bin/release
 include.tpl  libvolt.so  template.tpl  volt_sample
 ```
 
 The file **libvolt.so** is the important thing here, **volt_sample** is an example on how to use that lib. The sample will run with:
 
-```bash
+```shell
 % ./volt_sample template.tpl
 ```
 
 It's also possible to create the same objects with debug symbols included:
 
-```bash
+```shell
 % ./build --debug
 ```
 
 Or building a static library version for both, cleaning the current tree:
 
-```bash
+```shell
 % ./build --clear --debug --release --static
 ```
 
