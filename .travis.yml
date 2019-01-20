@@ -20,8 +20,8 @@ addons:
             - cmake-data
             - cmake
 script:
-    - ln -s /usr/bin/gcc-7 /usr/loca/bin/gcc
-    - ln -s /usr/bin/g++-7 /usr/loca/bin/g++
+    - ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
+    - ln -s /usr/bin/g++-7 /usr/local/bin/g++
     - export CC=gcc-7
     - export CXX=g++-7
     - gcc -v && g++ -v && cmake --version
