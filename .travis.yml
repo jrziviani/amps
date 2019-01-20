@@ -7,13 +7,14 @@ compiler:
     - g++
     - clang
 before_install:
-    - sudo apt update -qq
+    - pip install --user cpp-coveralls
 after_success:
     - bash <(curl -s https://codecov.io/bash) -t 1cf15c36-7686-41d9-99e4-fb530dd096e5
     - lcov --capture --directory . --output-file coverage.info
     - lcov --remove coverage.info '/usr/*' --output-file coverage.info
     - lcov --list coverage.info
     - bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports"
+    - coveralls --exclude lib -exclude tests -gcov-options '\-lp'
 addons:
     apt:
         sources:
