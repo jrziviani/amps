@@ -1,4 +1,4 @@
-Amps - Simple Template Engine for C++ [![Build Status](https://travis-ci.com/jrziviani/amps.svg?branch=master)](https://travis-ci.com/jrziviani/amps)
+Amps - Simple Template Engine for C++ [![Build Status](https://travis-ci.com/jrziviani/amps.svg?branch=master)](https://travis-ci.com/jrziviani/amps) [![codecov](https://codecov.io/gh/jrziviani/amps/branch/master/graph/badge.svg)](https://codecov.io/gh/jrziviani/amps)
 =====================================
 
 Index
