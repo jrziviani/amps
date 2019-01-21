@@ -8,11 +8,6 @@ compiler:
     - clang
 before_install:
     - pip install --user cpp-coveralls
-install:
-    - CMAKE_URL="https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.tar.gz"
-    - mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
-    - export PATH=${DEPS_DIR}/cmake/bin:${PATH}
-    - cmake --version
 after_success:
     - bash <(curl -s https://codecov.io/bash) -t 1cf15c36-7686-41d9-99e4-fb530dd096e5
     - lcov --capture --directory . --output-file coverage.info
@@ -31,6 +26,8 @@ addons:
             - clang-5.0
             - gcovr
             - lcov
+            - cmake
+            - cmake-data
 script:
     - export CC=gcc-7
     - export CXX=g++-7
