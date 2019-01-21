@@ -1,6 +1,6 @@
 Amps - Simple Template Engine for C++ 
 =====================================
-[![Build Status](https://travis-ci.com/jrziviani/amps.svg?branch=master)](https://travis-ci.com/jrziviani/amps) [![codecov](https://codecov.io/gh/jrziviani/amps/branch/master/graph/badge.svg)](https://codecov.io/gh/jrziviani/amps) [![Coverage Status](https://coveralls.io/repos/github/jrziviani/amps/badge.svg)](https://coveralls.io/github/jrziviani/amps)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f3b1aa0870124e58901854f8fbcbc87b)](https://www.codacy.com/app/jrziviani/amps?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jrziviani/amps&amp;utm_campaign=Badge_Grade) [![Build Status](https://travis-ci.com/jrziviani/amps.svg?branch=master)](https://travis-ci.com/jrziviani/amps) [![codecov](https://codecov.io/gh/jrziviani/amps/branch/master/graph/badge.svg)](https://codecov.io/gh/jrziviani/amps) [![Coverage Status](https://coveralls.io/repos/github/jrziviani/amps/badge.svg)](https://coveralls.io/github/jrziviani/amps)
 
 Index
 -----
