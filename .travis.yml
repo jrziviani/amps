@@ -14,7 +14,7 @@ after_success:
     - lcov --remove coverage.info '/usr/*' --output-file coverage.info
     - lcov --list coverage.info
     - bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports"
-    -  coveralls --build-root .build/release --gcov-options '\-lp' -e sample -e .build/release/CMakeFiles -e .build/release/googletest-src
+    -  coveralls --build-root .build/release --gcov-options '\-lp' -e sample -e .build/release/CMakeFiles -e .build/release/googletest-src -e .build/debug
 addons:
     apt:
         sources:
