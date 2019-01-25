@@ -426,6 +426,11 @@ namespace amps
 
         bool ret = context_.stack_pop_bool_or(false);
         branches_.push_back(branch{token_types::IF, ret});
+
+        if (inspect_) {
+            inspect_(context_, branches_);
+        }
+
         return true;
     }
 
@@ -444,6 +449,10 @@ namespace amps
         }
 
         branches_.back().taken = true;
+        if (inspect_) {
+            inspect_(context_, branches_);
+        }
+
         return true;
     }
 
@@ -477,7 +486,6 @@ namespace amps
             return false;
         }
 
-        branches_.pop_back();
         return true;
     }
 
@@ -547,19 +555,19 @@ namespace amps
 
     bool compiler::parse_expression(parser_iterator &it)
     {
-        return parse_logical(it);
+        return parse_equality(it);
     }
 
-    bool compiler::parse_logical(parser_iterator &it)
+    bool compiler::parse_equality(parser_iterator &it)
     {
-        if (!parse_equality(it)) {
+        if (!parse_logical(it)) {
             return false;
         }
 
-        while (it.match(token_types::AND) ||
-               it.match(token_types::OR)) {
+        while (it.match(token_types::EQ)  ||
+               it.match(token_types::NE)) {
             token_t oper = it.look_back();
-            if (!parse_equality(it)) {
+            if (!parse_logical(it)) {
                 return false;
             }
 
@@ -573,14 +581,14 @@ namespace amps
         return true;
     }
 
-    bool compiler::parse_equality(parser_iterator &it)
+    bool compiler::parse_logical(parser_iterator &it)
     {
         if (!parse_comparison(it)) {
             return false;
         }
 
-        while (it.match(token_types::EQ)  ||
-               it.match(token_types::NE)) {
+        while (it.match(token_types::AND) ||
+               it.match(token_types::OR)) {
             token_t oper = it.look_back();
             if (!parse_comparison(it)) {
                 return false;
@@ -595,7 +603,6 @@ namespace amps
 
         return true;
     }
-
 
     bool compiler::parse_comparison(parser_iterator &it)
     {
@@ -705,10 +712,18 @@ namespace amps
             context_.stack_push(object_t(value));
             return true;
         }
+        else if (it.match(token_types::TRUE)) {
+            context_.stack_push(object_t(true));
+            return true;
+        }
+        else if (it.match(token_types::FALSE)) {
+            context_.stack_push(object_t(false));
+            return true;
+        }
         else if (it.match(token_types::IDENTIFIER)) {
             string id = it.look_back().value().value_or("");
             if (!context_.environment_is_key_defined(id)) {
-                return true;
+                return false;
             }
 
             // evaluate variable[index] or variable["key"]
@@ -823,6 +838,12 @@ namespace amps
 
             case token_types::LE:
                 return object_t(a <= b);
+
+            case token_types::AND:
+                return object_t(a && b);
+
+            case token_types::OR:
+                return object_t(a || b);
 
             default:
                 return nullopt;

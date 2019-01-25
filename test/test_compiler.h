@@ -451,8 +451,9 @@ TEST_F (compiler_test, test_print)
                 EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
                 break;
 
-            case 24: //null
-                EXPECT_THAT(ctx.stack_empty(), true);
+            case 24:
+                EXPECT_THAT(ctx.stack_top_type(), vobject_types::BOOL);
+                EXPECT_THAT(ctx.stack_top().value().get_bool_or(false), true);
                 break;
 
             case 25: //null
