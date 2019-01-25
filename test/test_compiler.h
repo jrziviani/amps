@@ -315,7 +315,107 @@ TEST_F (compiler_test, test_for_map)
 
 TEST_F (compiler_test, test_if)
 {
+    using amps::context;
+    using amps::branch;
+    using std::vector;
 
+    set_file("code.if.1");
+
+    int64_t step = 0;
+    compiler_.set_callback([&step](const context &,
+                                   const vector<branch> &branches) {
+        switch (step) {
+            case 0:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 1:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 2:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 3:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 4:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF); // ELSE
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 5:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 6:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF); // ELIF
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 7:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 8:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF); // ELIF
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 9:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF); // ELSE
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+            }
+            step++;
+    });
+
+    compile();
+}
+
+TEST_F (compiler_test, test_if_variables)
+{
+    using amps::context;
+    using amps::branch;
+    using amps::user_map;
+    using std::unordered_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.if.2");
+
+    unordered_map<string, string> capitals = {
+        {"Brasil", "Brasilia"},
+        {"USA", "Washington"},
+        {"France", "Paris"},
+        {"England", "London"},
+        {"Portugal", "Lisbon"}};
+
+    vector<string> keys = {"Brasil", "USA", "France", "England", "Portugal"};
+    vector<string> values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
+
+    compiler_.set_callback([&capitals, &keys, &values](
+                const context &ctx,
+                const vector<branch> &branches) {
+        if (!ctx.environment_is_key_defined("map") ||
+            !ctx.environment_is_key_defined("vec")) {
+            return;
+        }
+
+        EXPECT_THAT(branches.back().type, amps::token_types::IF);
+        EXPECT_THAT(branches.back().taken, true);
+    });
+
+    user_map um {{"map", capitals}, {"vec", values}};
+    compile(um);
 }
 
 TEST_F (compiler_test, test_print)
