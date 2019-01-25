@@ -743,12 +743,16 @@ namespace amps
                 if (tp == vobject_types::STRING) {
                     std::string index = context_.stack_pop_string_or("");
                     std::string id = context_.stack_pop_string_or("");
-                    context_.stack_push_from_environment(id, index);
+                    if(!context_.stack_push_from_environment(id, index)) {
+                        error_.log(id, "[", index,"] not found");
+                    }
                 }
                 else if (tp == vobject_types::NUMBER) {
                     number_t index = context_.stack_pop_number_or(0);
                     std::string id = context_.stack_pop_string_or("");
-                    context_.stack_push_from_environment(id, index);
+                    if (!context_.stack_push_from_environment(id, index)) {
+                        error_.log(id, "[", index,"] not found");
+                    }
                 }
                 else {
                     context_.stack_pop();

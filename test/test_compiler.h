@@ -10,6 +10,18 @@
 #include <iostream>
 #include <sstream>
 
+#ifndef DEBUG
+    #define disable_stdout(fn)                       \
+        std::stringstream ss;                        \
+        std::streambuf *std_out = std::cout.rdbuf(); \
+        std::cout.rdbuf(ss.rdbuf());                 \
+        fn;                                          \
+        std::cout.rdbuf(std_out);
+#else
+    #define disable_stdout(fn)                       \
+        fn;
+#endif
+
 class compiler_test : public ::testing::Test
 {
 protected:
@@ -60,7 +72,7 @@ protected:
 TEST_F (compiler_test, block_test)
 {
     set_file("block.1");
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, valid_for_range)
@@ -79,7 +91,7 @@ TEST_F (compiler_test, valid_for_range)
         EXPECT_THAT(branches.back().taken, true);
     });
 
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, valid_for_range_neg)
@@ -99,7 +111,7 @@ TEST_F (compiler_test, valid_for_range_neg)
         step += 2;
     });
 
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, valid_for_range_reverse)
@@ -118,13 +130,14 @@ TEST_F (compiler_test, valid_for_range_reverse)
         EXPECT_THAT(branches.back().taken, true);
     });
 
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, invalid_for)
 {
     set_file("code.for.4");
-    compile();
+
+    disable_stdout(compile());
 
     EXPECT_THAT(error_.get_first_error_msg(), "expect ','");
     EXPECT_THAT(error_.get_error_msg(2), "expect ','");
@@ -174,7 +187,7 @@ TEST_F (compiler_test, nested_range)
         EXPECT_THAT(ctx.environment_check_value("blah", step1), true);
     });
 
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, skip_for_range)
@@ -190,7 +203,7 @@ TEST_F (compiler_test, skip_for_range)
         EXPECT_THAT(branches.back().taken, false);
     });
 
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, test_for_vector)
@@ -218,7 +231,7 @@ TEST_F (compiler_test, test_for_vector)
     });
 
     user_map um {{"vect", cities}};
-    compile(um);
+    disable_stdout(compile(um));
 
     EXPECT_THAT(error_.get_error_msg(0), "loop statement requires an identifier");
     EXPECT_THAT(error_.get_error_msg(0), "loop statement requires an identifier");
@@ -248,14 +261,8 @@ TEST_F (compiler_test, test_for_empty_vector)
         ++step;
     });
 
-    std::stringstream ss;
-    std::streambuf *std_out = std::cout.rdbuf();
-    std::cout.rdbuf(ss.rdbuf());
-
     user_map um {{"vect", cities}};
-    compile(um);
-
-    std::cout.rdbuf(std_out);
+    disable_stdout(compile(um));
 
     EXPECT_THAT(error_.get_error_msg(0), "variable voct is not defined");
 }
@@ -301,12 +308,8 @@ TEST_F (compiler_test, test_for_map)
         }
     });
 
-    std::stringstream ss;
-    std::streambuf *std_out = std::cout.rdbuf();
-    std::cout.rdbuf(ss.rdbuf());
     user_map um {{"dict", capitals}};
-    compile(um);
-    std::cout.rdbuf(std_out);
+    disable_stdout(compile(um));
 
     EXPECT_THAT(keys.size(), 0);
     EXPECT_THAT(error_.get_error_msg(0), "expect 'in' operator after identifier");
@@ -378,7 +381,7 @@ TEST_F (compiler_test, test_if)
             step++;
     });
 
-    compile();
+    disable_stdout(compile());
 }
 
 TEST_F (compiler_test, test_if_variables)
@@ -399,10 +402,10 @@ TEST_F (compiler_test, test_if_variables)
         {"England", "London"},
         {"Portugal", "Lisbon"}};
 
-    vector<string> keys = {"Brasil", "USA", "France", "England", "Portugal"};
     vector<string> values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
 
-    compiler_.set_callback([&capitals, &keys, &values](
+    int64_t step = 0;
+    compiler_.set_callback([&capitals, &values, &step](
                 const context &ctx,
                 const vector<branch> &branches) {
         if (!ctx.environment_is_key_defined("map") ||
@@ -410,12 +413,76 @@ TEST_F (compiler_test, test_if_variables)
             return;
         }
 
-        EXPECT_THAT(branches.back().type, amps::token_types::IF);
-        EXPECT_THAT(branches.back().taken, true);
+        switch (step) {
+            case 0:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 1:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 2:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 3:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+        }
+
+        step++;
     });
 
     user_map um {{"map", capitals}, {"vec", values}};
-    compile(um);
+    disable_stdout(compile(um));
+
+    EXPECT_THAT(error_.get_error_msg(0), "map [ error ] not found");
+    EXPECT_THAT(error_.get_error_msg(1), "vec [ 80 ] not found");
+    EXPECT_THAT(error_.get_error_msg(2), "unexpected token found: MINUS");
+}
+
+TEST_F (compiler_test, test_insert)
+{
+    using amps::context;
+    using amps::branch;
+    using amps::user_map;
+    using std::unordered_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.insert.1");
+
+    unordered_map<string, string> capitals = {
+        {"Brasil", "Brasilia"},
+        {"USA", "Washington"},
+        {"France", "Paris"},
+        {"England", "London"},
+        {"Portugal", "Lisbon"}};
+
+    vector<string> values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
+
+    int64_t step = 0;
+    compiler_.set_callback([&capitals, &values, &step](
+                const context &ctx,
+                const vector<branch> &) {
+        if (!ctx.environment_is_key_defined("map") ||
+            !ctx.environment_is_key_defined("vec")) {
+            return;
+        }
+
+        switch (step) {
+
+        }
+        step++;
+    });
+
+    user_map um {{"map", capitals}, {"vec", values}};
+    disable_stdout(compile(um));
 }
 
 TEST_F (compiler_test, test_print)
@@ -428,10 +495,6 @@ TEST_F (compiler_test, test_print)
     using std::vector;
 
     set_file("code.print.1");
-
-    std::stringstream ss;
-    std::streambuf *std_out = std::cout.rdbuf();
-    std::cout.rdbuf(ss.rdbuf());
 
     int64_t step = 0;
     compiler_.set_callback([&step](const context &ctx,
@@ -595,7 +658,5 @@ TEST_F (compiler_test, test_print)
         ++step;
     });
 
-    compile();
-
-    std::cout.rdbuf(std_out);
+    disable_stdout(compile());
 }

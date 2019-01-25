@@ -43,10 +43,10 @@ namespace amps
         bool stack_pop_bool_or(bool opt);
         void stack_push(const object_t &obj);
         void stack_clear();
-        void stack_push_from_environment(const std::string &key);
-        void stack_push_from_environment(const std::string &key,
+        bool stack_push_from_environment(const std::string &key);
+        bool stack_push_from_environment(const std::string &key,
                 size_t index);
-        void stack_push_from_environment(const std::string &key,
+        bool stack_push_from_environment(const std::string &key,
                 const std::string &user_key);
 
         // --------------------------

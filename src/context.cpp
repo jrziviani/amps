@@ -7,27 +7,29 @@ namespace amps
     using m_number = std::unordered_map<std::string, number_t>;
     using m_string = std::unordered_map<std::string, std::string>;
 
-    void context::stack_push_from_environment(const std::string &key)
+    bool context::stack_push_from_environment(const std::string &key)
     {
         // simply push the value of environment_[key] onto the stack
         // this method only handles string and number value types
-        std::visit([&](auto &&var) {
+        return std::visit([&](auto &&var) -> bool {
             using T = std::decay_t<decltype(var)>;
 
             if constexpr (std::is_same_v<T, number_t> ||
                           std::is_same_v<T, std::string>) {
                 stack_push(object_t(var));
             }
+
+            return true;
         }, environment_[key]);
     }
 
-    void context::stack_push_from_environment(const std::string &key,
+    bool context::stack_push_from_environment(const std::string &key,
                                               size_t index)
     {
         // simply push the value of environment_[key] onto the stack
         // this method handles vector<string> and vector<number_t>
         // values, so the index of that vector is also required
-        std::visit([&](auto &&var) {
+        return std::visit([&](auto &&var) -> bool {
             using T = std::decay_t<decltype(var)>;
 
             if constexpr (std::is_same_v<T, v_number> ||
@@ -36,21 +38,24 @@ namespace amps
                 // make sure we're not accessing out of bounds item
                 if (index >= var.size()) {
                     stack_push(object_t(std::string("<null>")));
+                    return false;
                 }
                 else {
                     stack_push(object_t(var.at(index)));
                 }
             }
+
+            return true;
         }, environment_[key]);
     }
 
-    void context::stack_push_from_environment(const std::string &key,
+    bool context::stack_push_from_environment(const std::string &key,
                                               const std::string &user_key)
     {
         // simply push the value of environment_[key] onto the stack
         // this method handles map<string, string> and map<string, number_t>
         // values, so the key of that map is also required
-        std::visit([&](auto &&var) {
+        return std::visit([&](auto &&var) -> bool {
             using T = std::decay_t<decltype(var)>;
 
             if constexpr (std::is_same_v<T, m_number> ||
@@ -59,11 +64,14 @@ namespace amps
                 // make sure that the key exists
                 if (var.find(user_key) == var.end()) {
                     stack_push(object_t(std::string("<null>")));
+                    return false;
                 }
                 else {
                     stack_push(object_t(var[user_key]));
                 }
             }
+
+            return true;
         }, environment_[key]);
     }
 
