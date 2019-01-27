@@ -1,7 +1,11 @@
 #-----------------------------------------
 # Build test
 #-----------------------------------------
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Werror -fprofile-arcs -ftest-coverage")
+if (UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Werror -fprofile-arcs -ftest-coverage")
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/test)
@@ -17,30 +21,39 @@ add_executable(amps_test
 
 target_link_libraries(amps_test LINK_PUBLIC ${CMAKE_DL_LIBS} gmock_main)
 
-add_custom_target(coverage
-    COMMAND ${CMAKE_MAKE_PROGRAM} test
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
+if (UNIX)
+	add_custom_target(coverage
+		COMMAND ${CMAKE_MAKE_PROGRAM} test
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	)
 
-add_custom_command(TARGET coverage
-    COMMAND gcovr --root ${CMAKE_SOURCE_DIR}/src
-                  --object-directory ${CMAKE_BINARY_DIR}/test
-                  --html --html-details -o coverage.html
-    COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
-    COMMAND ${CMAKE_COMMAND} -E echo ' Coverage test generated, results at '
-    COMMAND ${CMAKE_COMMAND} -E echo ' file://${CMAKE_BINARY_DIR}/test/coverage.html '
-    COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
-)
+	add_custom_command(TARGET coverage
+		COMMAND gcovr --root ${CMAKE_SOURCE_DIR}/src
+			          --object-directory ${CMAKE_BINARY_DIR}/test
+				      --html --html-details -o coverage.html
+		COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
+		COMMAND ${CMAKE_COMMAND} -E echo ' Coverage test generated, results at '
+		COMMAND ${CMAKE_COMMAND} -E echo ' file://${CMAKE_BINARY_DIR}/test/coverage.html '
+		COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
+	)
 
-add_dependencies(coverage amps_test)
+	add_dependencies(coverage amps_test)
+	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES coverage)
+endif()
+
 add_test(NAME test COMMAND amps_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin/test)
 
-add_custom_command(TARGET amps_test POST_BUILD
-    COMMAND cp ${CMAKE_SOURCE_DIR}/test/block.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND cp ${CMAKE_SOURCE_DIR}/test/code.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
-
-set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES coverage)
+if (UNIX)
+	add_custom_command(TARGET amps_test POST_BUILD
+		COMMAND cp ${CMAKE_SOURCE_DIR}/test/block.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	    COMMAND cp ${CMAKE_SOURCE_DIR}/test/code.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	)
+else()
+	add_custom_command(TARGET amps_test POST_BUILD
+		COMMAND cmd /c ${CMAKE_SOURCE_DIR}/copy.bat ${CMAKE_SOURCE_DIR}/test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} "block.*"
+		COMMAND cmd /c ${CMAKE_SOURCE_DIR}/copy.bat ${CMAKE_SOURCE_DIR}/test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} "code.*"
+	)
+endif()
 
 #-----------------------------------------
 # Google Test Framework

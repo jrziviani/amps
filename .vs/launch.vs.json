@@ -1,0 +1,25 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "amps_sample.exe (bin\\amps_sample.exe)",
+      "name": "amps_sample.exe (bin\\amps_sample.exe)"
+        "args": ["template.tpl"]
+    },
+    {
+      "type": "dll",
+      "exe": "",
+      "project": "CMakeLists.txt",
+      "projectTarget": "amps.dll (bin\\amps.dll)",
+      "name": "amps.dll (bin\\amps.dll)"
+    },
+    {
+      "type": "native",
+      "name": "C:\\Users\\gamer\\projects\\amps",
+      "project": ""
+    }
+  ]
+}

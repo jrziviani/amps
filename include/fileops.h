@@ -5,9 +5,7 @@
 
 #include <fstream>
 #include <string>
-#ifdef __linux__
-    #include <sys/stat.h>
-#endif
+#include <sys/stat.h>
 
 namespace amps
 {
@@ -24,7 +22,6 @@ namespace amps
         bool is_readable;
     };
 
-#ifdef __linux__
     inline file_data check_file(const std::string &name)
     {
         file_data file = { false, false, false, false};
@@ -34,21 +31,19 @@ namespace amps
             return file;
         }
 
+#ifdef __linux__
         file.is_readable = (buffer.st_mode & S_IRUSR) ? true : false;
         file.is_writable = (buffer.st_mode & S_IWUSR) ? true : false;
         file.is_file = ((buffer.st_mode & S_IFMT) == S_IFREG) ? true : false;
-        file.is_directory = ((buffer.st_mode & S_IFMT) == S_IFREG) ? true : false;
-        return file;
-    }
-
+        file.is_directory = ((buffer.st_mode & S_IFMT) == S_IFDIR) ? true : false;
 #else
-    inline file_data check_file(const std::string &name)
-    {
-        file_data file = { false, false, false, false};
+		file.is_readable = true;
+		file.is_writable = false;
+		file.is_file = true;
+		file.is_directory = false;
+#endif
         return file;
     }
-
-#endif
 
     inline bool is_readable_directory(const std::string &path)
     {

@@ -12,13 +12,10 @@ project (amps VERSION 0.0
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
-
-#-----------------------------------------
-# It's not ready even for Linux...
-#-----------------------------------------
 if(NOT UNIX)
-    message(FATAL_ERROR "Not ready...")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W3")
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 endif()
 
 #-----------------------------------------

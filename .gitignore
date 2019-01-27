@@ -3,3 +3,4 @@ bin/
 cscope.out
 src/old/
 tags
+/.vs/amps/v15
