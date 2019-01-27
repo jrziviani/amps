@@ -125,6 +125,7 @@ main() {
     local test=0
     local clear=0
     local debug=0
+    local windows=0
     local verbose=0
     local static="OFF"
 
@@ -156,6 +157,11 @@ main() {
             --static)
                 static="ON"
                 ;;
+            --windows)
+                windows=1
+                export CC=/usr/bin/x86_64-w64-mingw32-gcc
+                export CXX=/usr/bin/x86_64-w64-mingw32-g++
+                ;;
             --verbose)
                 verbose=1
                 ;;
@@ -168,7 +174,7 @@ main() {
         esac
     done
 
-    [[ "$rebuild" == 1 || "$clear" == 1 ]] && clean
+    [[ "$rebuild" == 1 || "$clear" == 1 || "$windows" == 1 ]] && clean
     [[ "$test" == 1 ]] && coverage "$static"
     [[ "$debug" == 1 || "$release" == 0 || "$rebuild" == 1 ]] && debug "$verbose" "$static"
     [[ "$release" == 1 || "$rebuild" == 1 ]] && release "$verbose" "$static"
