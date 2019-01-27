@@ -3,6 +3,7 @@ sudo: required
 dist: trusty
 os:
     - linux
+    - windows
 compiler:
     - g++
     - clang
