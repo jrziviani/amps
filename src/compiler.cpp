@@ -267,8 +267,8 @@ namespace amps
         // for item in vector
         // expects only an identifier that represents a vector<number_t>
         // or vector<string>
-        else if (it.look().type() == token_types::IDENTIFIER && value.size() == 0) {
-            string vect = it.look().value().value_or("");
+        else if (value.size() == 0 && it.match(token_types::IDENTIFIER)) {
+            string vect = it.look_back().value().value_or("");
             it.next();
 
             if (!context_.environment_is_key_defined(vect)) {
@@ -295,8 +295,8 @@ namespace amps
         // for key, value in table
         // expects only an identifier that represents an
         // unordered_map<number_t> or unordered_map<string>
-        else if (it.look().type() == token_types::IDENTIFIER && value.size() > 0) {
-            string tbl = it.look().value().value_or("");
+        else if (value.size() > 0 && it.match(token_types::IDENTIFIER)) {
+            string tbl = it.look_back().value().value_or("");
             it.next();
 
             if (!context_.environment_is_key_defined(tbl)) {

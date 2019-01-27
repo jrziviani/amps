@@ -43,6 +43,11 @@ TEST_F (scan_test, invalid_to_text_blocks)
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();
 
+		if (data.size() == 0) {
+			step++;
+			continue;
+		}
+
         switch (step++) {
             case 0:
             case 15:
@@ -122,6 +127,10 @@ TEST_F (scan_test, valid_and_invalid_blocks)
     for (std::string content; std::getline(file, content); ++i) {
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();
+
+		if (data.size() == 0) {
+			continue;
+		}
 
         EXPECT_EQ(data[0].type, expected[i]);
         if (errors_expected[i].size() > 0 || error_.get_last_error_msg().size() > 0) {
