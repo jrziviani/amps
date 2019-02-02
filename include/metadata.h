@@ -46,6 +46,7 @@ namespace amps
 
     public:
         typedef metadata value_type;
+        typedef std::vector<metadata>::difference_type difference_type;
 
         metainfo() :
             hash_metadata(0)

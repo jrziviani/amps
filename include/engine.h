@@ -25,6 +25,7 @@ namespace amps
         void set_template_directory(const std::string &path);
         void prepare_template(const std::string &name);
         bool compile(const user_map &um);
+        std::string render(const user_map &um);
 
         /*
         const error &get_error() const

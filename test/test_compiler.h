@@ -50,14 +50,14 @@ protected:
         }
     }
 
-    void compile()
+    std::string compile()
     {
-        compiler_.generate(scan_.get_metainfo(), amps::user_map {{"", ""}});
+        return compiler_.generate(scan_.get_metainfo(), amps::user_map {{"", ""}});
     }
 
-    void compile(const amps::user_map &usermap)
+    std::string compile(const amps::user_map &usermap)
     {
-        compiler_.generate(scan_.get_metainfo(), usermap);
+        return compiler_.generate(scan_.get_metainfo(), usermap);
     }
 
     void SetUp() override
@@ -483,6 +483,39 @@ TEST_F (compiler_test, test_insert)
 
     user_map um {{"map", capitals}, {"vec", values}};
     disable_stdout(compile(um));
+}
+
+TEST_F (compiler_test, test_success_insert)
+{
+    using amps::number_t;
+    using amps::user_map;
+    using std::unordered_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.insert.2");
+
+    unordered_map<string, number_t> ages = {
+        {"John", 53},
+        {"Mary", 21},
+        {"Nobody", -15},
+    };
+
+    vector<number_t> random_nrs = {3, 12, 8, 1, 55, static_cast<number_t>(-12),
+                                   static_cast<number_t>(-1), 0};
+
+    user_map um {{"ages", ages}, {"nums", random_nrs}};
+    string rendered = compile(um);
+
+    std::ifstream result_file("code.insert.result");
+    string result_content;
+    result_file.seekg(0, std::ios::end);
+    result_content.reserve(result_file.tellg());
+    result_file.seekg(0, std::ios::beg);
+    result_content.assign((std::istreambuf_iterator<char>(result_file)),
+                           std::istreambuf_iterator<char>());
+
+    EXPECT_THAT(result_content, rendered);
 }
 
 TEST_F (compiler_test, test_print)

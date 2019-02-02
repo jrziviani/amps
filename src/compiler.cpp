@@ -10,14 +10,15 @@ using namespace std;
 namespace amps
 {
     compiler::compiler(error &err) :
-        error_(err),
         running_cache_(false),
+        error_(err),
         current_cache_(0)
     {
     }
 
-    void compiler::generate(metainfo &metainfo, const user_map &usermap)
+    string compiler::generate(metainfo &metainfo, const user_map &usermap)
     {
+        result_ = string("");
         const size_t &counter = context_.get_counter();
 
         // put user data in the environment table
@@ -43,7 +44,9 @@ namespace amps
             if (metainfo[counter].type == metatype::TEXT) {
                 if (metainfo[counter].data.size() > 0) {
                     if (branches_.size() == 0 || branches_.back().taken) {
-                        cout << metainfo[counter].data;
+                        if (metainfo[counter].data[0] != 0) {
+                            result_ += metainfo[counter].data;
+                        }
                     }
                 }
 
@@ -75,6 +78,8 @@ namespace amps
             error_.log("expected endif");
             branches_.clear();
         }
+
+        return result_;
     }
 
     bool compiler::run_statement(parser_iterator &it, metainfo &metainfo)
@@ -121,7 +126,7 @@ namespace amps
             if (inspect_) {
                 inspect_(context_, branches_);
             }
-            cout << "<null>";
+            result_ += string("<null>");
             return false;
         }
 
@@ -132,19 +137,20 @@ namespace amps
         auto result = context_.stack_pop();
         if (result == nullopt) {
             error_.log("print statement cannot evaluate its parameters");
-            cout << "<null>";
+            result_ += string("<null>");
             return false;
         }
 
         auto type = result.value().get_type();
         if (type == vobject_types::STRING) {
-            cout << result.value().get_string_or("<null>");
+            result_ += result.value().get_string_or("<null>");
         }
         else if (type == vobject_types::NUMBER) {
-            cout << static_cast<int64_t>(result.value().get_number_or(0));
+            int64_t num = static_cast<int64_t>(result.value().get_number_or(0));
+            result_ += to_string(num);
         }
         else {
-            cout << boolalpha << result.value().get_bool_or(false);
+            result_ = (!result.value().get_bool_or(false)) ? "false" : "true";
         }
 
         return true;
@@ -249,7 +255,7 @@ namespace amps
             }
 
             // cannot pass the max number of configured iterations
-            if (range.size() / step > MAX_ITERATION) {
+            if (range.size() / static_cast<uint64_t>(step) > MAX_ITERATION) {
                 branches_.push_back(branch{token_types::FOR, false});
                 return true;
             }
@@ -368,6 +374,7 @@ namespace amps
             // clean the context after reaching the last item
             if (index >= context_.environment_get_size(identifier)) {
                 context_.environment_erase(id_or_key);
+                context_.environment_erase(value);
                 context_.environment_erase(string(id_or_key + "_idx"));
                 branches_.pop_back();
                 return true;
@@ -519,13 +526,14 @@ namespace amps
         // the current program and execute it
         if (cache_it == cache_.end()) {
             size_t counter = context_.get_counter();
+            auto diff = static_cast<metainfo::difference_type>(counter);
             cache_[new_info.hash()] = block_cache{counter - 1,
                                                   new_info.size() + counter - 1,
                                                   0, 1};
             size_t new_size = new_info.size();
-            copy(info.begin() + counter + 1, info.end(), back_inserter(new_info));
+            copy(info.begin() + diff + 1, info.end(), back_inserter(new_info));
             info.resize(info.size() + new_size);
-            copy(new_info.begin(), new_info.end(), info.begin() + counter);
+            copy(new_info.begin(), new_info.end(), info.begin() + diff);
 
             // restart the block execution
             context_.jump_to(counter - 1);
@@ -946,7 +954,7 @@ namespace amps
         auto type = t.value().get_type();
 
         if (oper == token_types::MINUS && type == vobject_types::NUMBER) {
-            return object_t(t.value().get_number_or(0) * -1);
+            return object_t(t.value().get_number_or(0) * static_cast<uint64_t>(-1));
         }
         else if (oper == token_types::NOT && type == vobject_types::NUMBER) {
             return object_t((t.value().get_number_or(0) == 0) ? true : false);

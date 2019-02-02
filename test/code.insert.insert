@@ -1,0 +1,5 @@
+I'm inserted {= time =}
+
+{% for k, v in ages %}
+{= k =}: {= v =}
+{% endfor %}

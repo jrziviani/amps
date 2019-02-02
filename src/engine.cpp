@@ -55,9 +55,8 @@ namespace amps
         }
     }
 
-    bool engine::compile(const user_map &um)
+    std::string engine::render(const user_map &um)
     {
-        compiler_.generate(scanner_.get_metainfo(), um);
-        return false;
+        return compiler_.generate(scanner_.get_metainfo(), um);
     }
 }

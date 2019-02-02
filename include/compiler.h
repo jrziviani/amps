@@ -30,8 +30,9 @@ namespace amps
 
     class compiler
     {
-        error &error_;
         bool running_cache_;
+        std::string result_;
+        error &error_;
         size_t current_cache_;
         context context_;
         std::vector<branch> branches_;
@@ -72,7 +73,7 @@ namespace amps
 
     public:
         compiler(error &err);
-        void generate(metainfo &metainfo, const user_map &usermap);
+        std::string generate(metainfo &metainfo, const user_map &usermap);
 
         template <typename F>
         void set_callback(F&& callback)
