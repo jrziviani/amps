@@ -1,0 +1,3 @@
+from recursive 1
+{% insert "code.insert.3" %}
+from recursive 2
