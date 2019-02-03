@@ -5,10 +5,10 @@ Amps - Simple Template Engine for C++
 Index
 -----
 
-  * [Introduction](#Introduction)
-  * [What it does](#What-it-does)
-  * [Building](#Building)
-  * [Testing](#Testing)
+* [Introduction](#Introduction)
+* [What it does](#What-it-does)
+* [Building](#Building)
+* [Testing](#Testing)
 
 Introduction
 ------------
