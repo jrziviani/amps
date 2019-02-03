@@ -38,16 +38,14 @@ protected:
     void set_file(const std::string &filename)
     {
         std::ifstream file(filename);
-        std::string content(1024 + 1, '\0');
+        std::string content;
+        file.seekg(0, std::ios::end);
+        content.reserve(file.tellg());
+        file.seekg(0, std::ios::beg);
 
-        while (true) {
-            file.read(&content[0], static_cast<std::streamsize>(1024));
-            scan_.do_scan(content);
-
-            if (file.eof()) {
-                break;
-            }
-        }
+        content.assign((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
+        scan_.do_scan(content);
     }
 
     std::string compile()

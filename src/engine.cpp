@@ -43,16 +43,16 @@ namespace amps
             return;
         }
 
-        string content(MAX_READ_SZ + 1, '\0');
+        std::string content;
+        file.seekg(0, std::ios::end);
+        content.reserve(file.tellg());
+        file.seekg(0, std::ios::beg);
 
-        while (true) {
-            file.read(&content[0], static_cast<streamsize>(MAX_READ_SZ));
-            scanner_.do_scan(content);
+        content.assign((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
 
-            if (file.eof()) {
-                break;
-            }
-        }
+        scanner_.do_scan(content);
+
     }
 
     std::string engine::render(const user_map &um)

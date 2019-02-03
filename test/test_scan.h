@@ -43,10 +43,10 @@ TEST_F (scan_test, invalid_to_text_blocks)
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();
 
-		if (data.size() == 0) {
-			step++;
-			continue;
-		}
+        if (data.size() == 0) {
+            step++;
+            continue;
+        }
 
         switch (step++) {
             case 0:
@@ -77,22 +77,25 @@ TEST_F (scan_test, valid_and_invalid_blocks_all)
     using amps::metatype;
     using testing::StartsWith;
 
-    std::array<metatype, 28> expected = {
+    std::array<metatype, 33> expected = {
         metatype::CODE, metatype::COMMENT, metatype::CODE, metatype::COMMENT, metatype::CODE,
         metatype::COMMENT, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
-        metatype::TEXT, metatype::ECHO, metatype::CODE, metatype::CODE, metatype::CODE,
-        metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::TEXT, metatype::TEXT,
-        metatype::TEXT, metatype::CODE, metatype::ECHO, metatype::ECHO, metatype::ECHO,
-        metatype::TEXT, metatype::TEXT,
+        metatype::TEXT, metatype::ECHO, metatype::TEXT, metatype::CODE, metatype::CODE,
+        metatype::CODE, metatype::CODE, metatype::TEXT, metatype::TEXT, metatype::TEXT,
+        metatype::TEXT, metatype::COMMENT, metatype::CODE, metatype::TEXT, metatype::ECHO,
+        metatype::TEXT, metatype::ECHO, metatype::TEXT, metatype::ECHO, metatype::TEXT,
+        metatype::COMMENT, metatype::TEXT, metatype::TEXT,
     };
 
     std::ifstream file("block.2");
+    std::string content;
 
-    std::string content(512 + 1, '\0');
-    file.read(&content[0], static_cast<std::streamsize>(512));
+    content.assign((std::istreambuf_iterator<char>(file)),
+                    std::istreambuf_iterator<char>());
     scan_.do_scan(content);
-    auto &data = scan_.get_metainfo();
 
+    auto &data = scan_.get_metainfo();
+    EXPECT_EQ(data.size(), expected.size());
     for (size_t i = 0; i < data.size(); ++i) {
         EXPECT_EQ(data[i].type, expected[i]);
     }
@@ -128,9 +131,9 @@ TEST_F (scan_test, valid_and_invalid_blocks)
         scan_.do_scan(content);
         auto &data = scan_.get_metainfo();
 
-		if (data.size() == 0) {
-			continue;
-		}
+        if (data.size() == 0) {
+            continue;
+        }
 
         EXPECT_EQ(data[0].type, expected[i]);
         if (errors_expected[i].size() > 0 || error_.get_last_error_msg().size() > 0) {

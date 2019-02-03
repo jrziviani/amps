@@ -37,10 +37,10 @@ namespace amps
         file.is_file = ((buffer.st_mode & S_IFMT) == S_IFREG) ? true : false;
         file.is_directory = ((buffer.st_mode & S_IFMT) == S_IFDIR) ? true : false;
 #else
-		file.is_readable = true;
-		file.is_writable = false;
-		file.is_file = true;
-		file.is_directory = false;
+        file.is_readable = true;
+        file.is_writable = false;
+        file.is_file = true;
+        file.is_directory = false;
 #endif
         return file;
     }
@@ -72,8 +72,13 @@ namespace amps
             return "";
         }
 
-        std::string content(MAX_READ_SZ + 1, '\0');
-        file.read(&content[0], static_cast<std::streamsize>(MAX_READ_SZ));
+        std::string content;
+        file.seekg(0, std::ios::end);
+        content.reserve(file.tellg());
+        file.seekg(0, std::ios::beg);
+
+        content.assign((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
         return content;
     }
 

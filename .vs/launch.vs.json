@@ -6,8 +6,8 @@
       "type": "default",
       "project": "CMakeLists.txt",
       "projectTarget": "amps_sample.exe (bin\\amps_sample.exe)",
-      "name": "amps_sample.exe (bin\\amps_sample.exe)"
-        "args": ["template.tpl"]
+      "name": "amps_sample.exe (bin\\amps_sample.exe)",
+      "args": ["template.tpl"]
     },
     {
       "type": "dll",
