@@ -483,16 +483,12 @@ namespace amps
     {
         it.next();
 
-        if (branches_.size() > 0 && !branches_.back().taken) {
-            branches_.pop_back();
-            return true;
-        }
-
-        if (branches_.back().type != token_types::IF) {
+        if (branches_.size() == 0 || branches_.back().type != token_types::IF) {
             error_.log("expected ENDIF, ELSE, or ELIF");
             return false;
         }
 
+        branches_.pop_back();
         return true;
     }
 
