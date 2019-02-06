@@ -51,7 +51,7 @@ A basic template looks like:
 
         {% insert "include.tpl" %}
 
-        <p>Couting from -5 to +5:</p>
+        <p>Counting from -5 to +5:</p>
         <ul>
         {% for number in range(-5, 6, 1) %}
           {% if number % 2 eq 0 %}
