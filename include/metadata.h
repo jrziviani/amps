@@ -65,7 +65,7 @@ namespace amps
         void resize(size_t new_size);
 
         const metadata &operator[](size_t idx) const;
-        std::vector<metadata> &operator=(std::vector<metadata> &&other) noexcept;
+        metainfo &operator=(std::vector<metadata> &&other) noexcept;
         std::vector<metadata>::iterator begin() noexcept;
         std::vector<metadata>::iterator end() noexcept;
         std::vector<metadata>::const_iterator begin() const noexcept;
@@ -98,9 +98,10 @@ namespace amps
         add_metadata(data);
     }
 
-    inline std::vector<metadata> &metainfo::operator=(std::vector<metadata> &&other) noexcept // lgtm [cpp/assignment-does-not-return-this]
+    inline metainfo &metainfo::operator=(std::vector<metadata> &&other) noexcept
     {
-        return metadata_.operator=(other);
+        metadata_.operator=(other);
+        return *this;
     }
 
     inline void metainfo::resize(size_t new_size)
