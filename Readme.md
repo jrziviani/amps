@@ -1,6 +1,6 @@
 Amps - Simple Template Engine for C++ 
 =====================================
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f3b1aa0870124e58901854f8fbcbc87b)](https://www.codacy.com/app/jrziviani/amps?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jrziviani/amps&amp;utm_campaign=Badge_Grade) [![Build Status](https://travis-ci.com/jrziviani/amps.svg?branch=master)](https://travis-ci.com/jrziviani/amps) [![codecov](https://codecov.io/gh/jrziviani/amps/branch/master/graph/badge.svg)](https://codecov.io/gh/jrziviani/amps) [![Coverage Status](https://coveralls.io/repos/github/jrziviani/amps/badge.svg)](https://coveralls.io/github/jrziviani/amps)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f3b1aa0870124e58901854f8fbcbc87b)](https://www.codacy.com/app/jrziviani/amps?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jrziviani/amps&amp;utm_campaign=Badge_Grade) [![Build Status](https://travis-ci.com/jrziviani/amps.svg?branch=master)](https://travis-ci.com/jrziviani/amps) [![codecov](https://codecov.io/gh/jrziviani/amps/branch/master/graph/badge.svg)](https://codecov.io/gh/jrziviani/amps) [![Coverage Status](https://coveralls.io/repos/github/jrziviani/amps/badge.svg)](https://coveralls.io/github/jrziviani/amps) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/jrziviani/amps.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jrziviani/amps/context:cpp)
 
 Index
 -----
