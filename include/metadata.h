@@ -98,7 +98,7 @@ namespace amps
         add_metadata(data);
     }
 
-    inline std::vector<metadata> &metainfo::operator=(std::vector<metadata> &&other) noexcept
+    inline std::vector<metadata> &metainfo::operator=(std::vector<metadata> &&other) noexcept // lgtm [cpp/assignment-does-not-return-this]
     {
         return metadata_.operator=(other);
     }
