@@ -9,6 +9,7 @@ include_directories(../include)
 
 option(enable-static "enable-static" OFF)
 if (enable-static)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
     add_library(amps-static STATIC
                 scan.cpp
                 engine.cpp
