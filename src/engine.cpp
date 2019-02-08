@@ -38,7 +38,7 @@ namespace amps
             return;
         }
 
-        ifstream file(name);
+        ifstream file(fullname);
         if (!file.is_open()) {
             return;
         }
