@@ -36,14 +36,17 @@ unordered_map<string, string> query_to_map(const char *query)
 
 static void get_custom_template(request_rec *r, char **result)
 {
-    auto user = query_to_map(r->args);
-
-    amps::user_map ht {{"user_data", user}};
+    if (r->args == 0) {
+        return;
+    }
 
     amps::error err;
     amps::engine engine(err);
     engine.set_template_directory("/tmp");
 
+    amps::user_map ht {{"user_data", query_to_map(r->args)}};
+
+    // html template is the default, xml returned when content=xml
     auto content = user.find("content");
     if (content == user.end() || content->second == "html") {
         engine.prepare_template("template.tpl");
