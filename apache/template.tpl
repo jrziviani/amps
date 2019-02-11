@@ -4,7 +4,7 @@
     </head>
 
     <body>
-        <h2 class="odd">Welcome {= user_data["name"] =}</h2>
+        <h2>Welcome {= user_data["name"] =}</h2>
         <ul>
             <li>ALL DATA:</ul>
             {% for key, value in user_data %}
