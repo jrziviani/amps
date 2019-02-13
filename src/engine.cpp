@@ -13,6 +13,7 @@ namespace amps
 {
     engine::engine(error &err) :
         path_("."),
+        error_(err),
         scanner_(err),
         compiler_(err)
     {

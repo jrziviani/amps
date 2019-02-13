@@ -13,7 +13,7 @@ namespace amps
     {
         std::string path_;
         std::string result_;
-        error error_;
+        error &error_;
 
         scan scanner_;
         compiler compiler_;
