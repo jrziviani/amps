@@ -51,34 +51,51 @@ coverage() {
     echo "*****************************************"
     echo "** Running test cases                  **"
     echo "*****************************************"
-    local verbose="$1"
-    local static="$2"
-    mkdir -p .build/release
-    cd .build/release
-    cmake -DCMAKE_BUILD_TYPE=Release \
-          -Denable-test=ON \
-          -Denable-static="$static" ../..
+    local static="$1"
+    local release="$2"
+    local debug="$3"
+    local update="$4"
 
-    [[ $? -eq 0 ]] || exit 1
-    [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
-                                       make coverage
-    mkdir -p ../../bin/release
-    cp -a bin/* ../../bin/release
-    cd ../..
+    if [[ $release == 1 ]]; then
+        mkdir -p .build/release
+        cd .build/release
 
-    mkdir -p .build/debug
-    cd .build/debug
-    cmake -DCMAKE_BUILD_TYPE=Debug \
-          -Denable-test=ON \
-          -Denable-static="$static" ../..
+        [[ -d googletest-build ]] || update="ON"
+        [[ -d googletest-src ]] || update="ON"
 
-    [[ $? -eq 0 ]] || exit 1
-    [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
-                                       make coverage
+        cmake -DCMAKE_BUILD_TYPE=Release \
+              -Denable-test=ON \
+              -Denable-static="$static" \
+              -Dupdate-gtest="$update" ../..
 
-    mkdir -p ../../bin/debug
-    cp -a bin/* ../../bin/debug
-    cd ../..
+        [[ $? -eq 0 ]] || exit 1
+        [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
+                                           make coverage
+        mkdir -p ../../bin/release
+        cp -a bin/* ../../bin/release
+        cd ../..
+    fi
+
+    if [[ $debug == 1 || $release == 0 ]]; then
+        mkdir -p .build/debug
+        cd .build/debug
+
+        [[ -d googletest-build ]] || update="ON"
+        [[ -d googletest-src ]] || update="ON"
+
+        cmake -DCMAKE_BUILD_TYPE=Debug \
+              -Denable-test=ON \
+              -Denable-static="$static" \
+              -Dupdate-gtest="$update" ../..
+
+        [[ $? -eq 0 ]] || exit 1
+        [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
+                                           make coverage
+
+        mkdir -p ../../bin/debug
+        cp -a bin/* ../../bin/debug
+        cd ../..
+    fi
 }
 
 usage() {
@@ -91,11 +108,13 @@ usage() {
         Usage: $program [options]
 
             --rebuild       make a clear build
+            --binary        builds binaries
             --clear         delete build artifacts
             --debug         build with debug symbols [default]
             --release       build with optimizations on
-            --test          run test cases and test coverage
+            --test          build and run test cases and coverage
             --static        build static library
+            --update        update googletest
             --verbose       build verbose mode
 EOF
     exit 1
@@ -125,8 +144,11 @@ main() {
     local test=0
     local clear=0
     local debug=0
+    local release=0
     local windows=0
     local verbose=0
+    local binary=0
+    local update="OFF"
     local static="OFF"
 
     if [[ -z "$1" ]]; then
@@ -145,6 +167,9 @@ main() {
             --test)
                 test=1
                 ;;
+            --binary)
+                binary=1
+                ;;
             --clear)
                 clear=1
                 ;;
@@ -162,6 +187,9 @@ main() {
                 export CC=/usr/bin/x86_64-w64-mingw32-gcc
                 export CXX=/usr/bin/x86_64-w64-mingw32-g++
                 ;;
+            --update)
+                update="ON"
+                ;;
             --verbose)
                 verbose=1
                 ;;
@@ -175,9 +203,12 @@ main() {
     done
 
     [[ "$rebuild" == 1 || "$clear" == 1 || "$windows" == 1 ]] && clean
-    [[ "$test" == 1 ]] && coverage "$static"
-    [[ "$debug" == 1 || "$release" == 0 || "$rebuild" == 1 ]] && debug "$verbose" "$static"
-    [[ "$release" == 1 || "$rebuild" == 1 ]] && release "$verbose" "$static"
+    [[ "$test" == 1 ]] && coverage "$static" "$release" "$debug" "$update"
+
+    if [[ "$binary" == 1 ]]; then
+        [[ "$release" == 1 || "$rebuild" == 1 ]] && release "$verbose" "$static"
+        [[ "$debug" == 1 || "$rebuild" == 1 || "$release" == 0 ]] && debug "$verbose" "$static"
+    fi
 }
 
 main $@
