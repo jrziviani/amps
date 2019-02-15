@@ -8,14 +8,14 @@ compiler:
     - g++
     - clang
 before_install:
-    - pip install --user cpp-coveralls
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; pip install --user cpp-coveralls fi
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -t 1cf15c36-7686-41d9-99e4-fb530dd096e5
-    - lcov --capture --directory . --output-file coverage.info
-    - lcov --remove coverage.info '/usr/*' --output-file coverage.info
-    - lcov --list coverage.info
-    - bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports"
-    - coveralls --build-root .build/release --gcov-options '\-lp' -e sample -e .build/release/CMakeFiles -e .build/release/googletest-src -e .build/debug
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; bash <(curl -s https://codecov.io/bash) -t 1cf15c36-7686-41d9-99e4-fb530dd096e5 fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; lcov --capture --directory . --output-file coverage.info fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; lcov --remove coverage.info '/usr/*' --output-file coverage.info fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; lcov --list coverage.info fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports" fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; coveralls --build-root .build/release --gcov-options '\-lp' -e sample -e .build/release/CMakeFiles -e .build/release/googletest-src -e .build/debug fi
 addons:
     apt:
         sources:
