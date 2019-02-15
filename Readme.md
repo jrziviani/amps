@@ -165,7 +165,7 @@ Building
 There is a build script provided. Running:
 
 ```shell
-% ./build --release
+% ./build --binary --linux --release --static
 ```
 
 Will create a folder called bin/release with:
@@ -184,13 +184,13 @@ The file **libamps.so** is the important thing here, **amps_sample** is an examp
 It's also possible to create the same objects with debug symbols included:
 
 ```shell
-% ./build --debug
+% ./build --binary --linux --debug --dynamic
 ```
 
 Or building a static library version for both, cleaning the current tree:
 
 ```shell
-% ./build --clear --debug --release --static
+% ./build --clear --binary --linux --debug --release --static
 ```
 
 Testing
