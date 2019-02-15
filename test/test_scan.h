@@ -1,17 +1,10 @@
 #include "../include/scan.h"
-#include "../include/error.h"
+#include "mock_error.h"
 
 #include <string>
 #include <array>
 #include <fstream>
-
-class mock_error : public amps::error
-{
-public:
-    mock_error()
-    {
-    }
-};
+#include <sstream>
 
 class scan_test : public ::testing::Test
 {

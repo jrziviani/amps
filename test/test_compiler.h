@@ -1,7 +1,7 @@
 #include "../include/compiler.h"
-#include "../include/error.h"
 #include "../include/types.h"
 #include "../include/context.h"
+#include "mock_error.h"
 
 #include <string>
 #include <array>
@@ -25,7 +25,7 @@
 class compiler_test : public ::testing::Test
 {
 protected:
-    amps::error error_;
+    mock_error error_;
     amps::scan scan_;
     amps::compiler compiler_;
 

@@ -266,7 +266,7 @@ namespace amps
             context_.stack_push(object_t(id_or_key));
             context_.stack_push(object_t(value));
             context_.stack_push(object_t(number_t(0)));
-            context_.stack_push(object_t(context_.get_counter()));
+            context_.stack_push(object_t(static_cast<number_t>(context_.get_counter())));
             branches_.push_back(branch{token_types::FOR, true});
         }
 
@@ -294,7 +294,7 @@ namespace amps
             context_.stack_push(object_t(id_or_key));
             context_.stack_push(object_t(value));
             context_.stack_push(object_t(number_t(0)));
-            context_.stack_push(object_t(context_.get_counter()));
+            context_.stack_push(object_t(static_cast<number_t>(context_.get_counter())));
             branches_.push_back(branch{token_types::FOR, true});
         }
 
@@ -323,7 +323,7 @@ namespace amps
             context_.stack_push(object_t(id_or_key));
             context_.stack_push(object_t(value));
             context_.stack_push(object_t(index));
-            context_.stack_push(object_t(context_.get_counter()));
+            context_.stack_push(object_t(static_cast<number_t>(context_.get_counter())));
             branches_.push_back(branch{token_types::FOR, true});
         }
         else {
