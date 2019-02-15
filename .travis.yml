@@ -33,5 +33,5 @@ script:
     - export CC=gcc-7
     - export CXX=g++-7
     - gcc -v && g++ -v && cmake --version
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./build --clear --linux --binary --test --debug --release --static --dynamic; fi
-    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ./build --clear --windows --binary --test --debug --release --static --dynamic; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./build --clear --linux --binary --debug --release --static --dynamic; fi
+    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ./build --clear --windows --binary --debug --release --static --dynamic; fi

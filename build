@@ -230,7 +230,8 @@ main() {
     if [[ "$windows" == 1 ]]; then
         export CC=/usr/bin/i686-w64-mingw32-gcc
         export CXX=/usr/bin/i686-w64-mingw32-g++
-        CMAKE=/usr/bin/mingw32-cmake
+        #CMAKE=/usr/bin/mingw32-cmake
+        CMAKE=/usr/bin/cmake
 
         if [[ "$binary" == 1 ]]; then
             mkdir -p bin/windows
