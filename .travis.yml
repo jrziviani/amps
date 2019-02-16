@@ -15,7 +15,7 @@ after_success:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --remove coverage.info '/usr/*' --output-file coverage.info; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --list coverage.info; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports"; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then coveralls --build-root .build/release --gcov-options '\-lp' -e sample -e .build/release/CMakeFiles -e .build/release/googletest-src -e .build/debug; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then coveralls --build-root .build/linux/release --gcov-options '\-lp' -e sample -e .build/linux/release/CMakeFiles -e .build/linux/release/googletest-src -e .build/linux/debug; fi
 addons:
     apt:
         sources:
