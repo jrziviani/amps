@@ -539,7 +539,7 @@ namespace amps
             size_t counter = context_.get_counter();
             auto diff = static_cast<metainfo::difference_type>(counter);
             cache_[new_info.hash()] = block_cache{counter - 1,
-                                                  new_info.size() + counter - 1,
+                                                  new_info.size() + counter,
                                                   0, 1};
             size_t new_size = new_info.size();
             copy(info.begin() + diff + 1, info.end(), back_inserter(new_info));
