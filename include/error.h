@@ -27,12 +27,18 @@ namespace amps
         void log(const T &msg, const Ts... msgs)
         {
             if constexpr (sizeof...(Ts) > 0) {
-                stream_ << msg << " ";
+                stream_ << msg;
                 log(msgs...);
             }
             else {
-                stream_ << msg << std::flush;
+                stream_ << msg << std::endl;
             }
+        }
+
+        template <typename... Ts>
+        void critical(const Ts... msgs)
+        {
+            log("Error: ", msgs...);
         }
     };
 }

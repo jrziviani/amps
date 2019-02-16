@@ -19,6 +19,7 @@ namespace amps
 
     void scan::do_scan(const string &content)
     {
+        line_ = 0;
         metainfo_.clear();
         parse_block(content);
     }
@@ -65,7 +66,7 @@ namespace amps
         metadata metadata = {
             0,
             metatype::CODE,
-            {position, position},
+            {position, position, line_},
             "",
             {},
         };
@@ -117,18 +118,18 @@ namespace amps
                 // is invalid, the whole content will be handled
                 // as common text
                 else if (content[position - 1] == TAG_ECHO) {
-                    error_.log("expects %",
-                               line_,
-                               metadata.range.start,
-                               position);
+                    error_.critical("expects % ",
+                                    line_, " ",
+                                    metadata.range.start, " ",
+                                    position);
                     position = confirm_code - 3;
                     return text_block(content, position, true);
                 }
                 else if (content[position - 1] == TAG_CODE) {
-                    error_.log("expects =",
-                               line_, 
-                               metadata.range.start,
-                               position);
+                    error_.critical("expects = ",
+                                    line_, " ",
+                                    metadata.range.start, " ",
+                                    position);
                     position = confirm_code - 3;
                     return text_block(content, position, true);
                 }
@@ -143,6 +144,7 @@ namespace amps
         }
 
         // {= expression =} is an alias to {% print expression %}
+        metadata.range.line = line_;
         metadata.range.end = position;
         if (metadata.type == metatype::ECHO) {
             metadata.data = "print ";
@@ -169,7 +171,7 @@ namespace amps
         metadata metadata = {
             0,
             metatype::TEXT,
-            {position, position},
+            {position, position, line_},
             "",
             {},
         };
@@ -208,10 +210,12 @@ namespace amps
 
         if (is_blank && !is_echo) {
             size_t end = (content[initial] == '\n') ? 1 : 0;
+            metadata.range.line = line_;
             metadata.range.end = initial + end;
             metadata.data = content.substr(initial, end);
         }
         else {
+            metadata.range.line = line_;
             metadata.range.end = position;
             metadata.data = content.substr(initial, position - initial + 1);
         }
@@ -250,7 +254,8 @@ namespace amps
                         parse_id(it, data);
                     }
                     else {
-                        error_.log("unexpected character", token);
+                        error_.log("unexpected character ", token,
+                                   ".Line: ", line_);
                         data.type = metatype::COMMENT;
                         it.next();
                     }
@@ -272,15 +277,15 @@ namespace amps
         }
 
         if (!it.match('"')) {
-            error_.log("expects closing \"");
+            error_.log("expects closing \". Line: ", line_);
             data.type = metatype::COMMENT;
             it.skip_all();
             return;
         }
 
         if (len > MAX_STRING_LEN) {
-            error_.log("max string length allowed " +
-                       to_string(MAX_STRING_LEN));
+            error_.log("max string length allowed is ", MAX_STRING_LEN,
+                       ". Line: ", line_);
             data.type = metatype::COMMENT;
             it.skip_all();
             return;
@@ -299,7 +304,7 @@ namespace amps
             it.next();
 
             if (number > (numeric_limits<int>::max() - digit) / 10UL) {
-                error_.log("only 32-bit numbers allowed");
+                error_.log("only 32-bit numbers allowed. Line: ", line_);
                 data.type = metatype::COMMENT;
                 it.skip_all();
                 return;
@@ -318,8 +323,8 @@ namespace amps
 
         while (!it.is_eol() && (isalnum(it.look()) || it.check('_'))) {
             if (len > MAX_VAR_LEN) {
-                error_.log("max id length allowed: " +
-                           to_string(MAX_VAR_LEN));
+                error_.log("max id length allowed: ", MAX_VAR_LEN,
+                           ". Line:", line_);
                 data.type = metatype::COMMENT;
                 it.skip_all();
                 return;

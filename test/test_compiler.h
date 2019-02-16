@@ -137,26 +137,26 @@ TEST_F (compiler_test, invalid_for)
 
     disable_stdout(compile());
 
-    EXPECT_THAT(error_.get_first_error_msg(), "expect ','");
-    EXPECT_THAT(error_.get_error_msg(2), "expect ','");
-    EXPECT_THAT(error_.get_error_msg(4), "expect 'in' operator after identifier");
-    EXPECT_THAT(error_.get_error_msg(6), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(8), "expect '('");
-    EXPECT_THAT(error_.get_error_msg(10), "unexpected token found: RIGHT_PAREN");
-    EXPECT_THAT(error_.get_error_msg(12), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(14), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(16), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(18), "range expects only numbers");
-    EXPECT_THAT(error_.get_error_msg(20), "expected closing ')'");
-    EXPECT_THAT(error_.get_error_msg(22), "expected an identifier after ','");
-    EXPECT_THAT(error_.get_error_msg(24), "variable val already exists, name must be unique");
-    EXPECT_THAT(error_.get_error_msg(26), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(28), "variable test is not defined");
-    EXPECT_THAT(error_.get_error_msg(30), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(32), "invalid loop");
-    EXPECT_THAT(error_.get_error_msg(34), "variable val already exists, name must be unique");
-    EXPECT_THAT(error_.get_error_msg(36), "endfor doesn't match a for");
-    EXPECT_THAT(error_.get_error_msg(37), "expected endfor");
+    EXPECT_THAT(error_.get_first_error_msg(), "Error: expect ','. Line: 0");
+    EXPECT_THAT(error_.get_error_msg(2), "Error: expect ','. Line: 2");
+    EXPECT_THAT(error_.get_error_msg(4), "Error: expect 'in' operator after identifier. Line: 4");
+    EXPECT_THAT(error_.get_error_msg(6), "Error: invalid loop. Line: 6");
+    EXPECT_THAT(error_.get_error_msg(8), "Error: expect '('. Line: 8");
+    EXPECT_THAT(error_.get_error_msg(10), "Error: unexpected token found: RIGHT_PAREN. Line: 10");
+    EXPECT_THAT(error_.get_error_msg(12), "Error: loop statement requires an identifier. Line: 12");
+    EXPECT_THAT(error_.get_error_msg(14), "Error: loop statement requires an identifier. Line: 14");
+    EXPECT_THAT(error_.get_error_msg(16), "Error: loop statement requires an identifier. Line: 16");
+    EXPECT_THAT(error_.get_error_msg(18), "Error: range expects only numbers. Line: 18");
+    EXPECT_THAT(error_.get_error_msg(20), "Error: expected closing ')'. Line: 20");
+    EXPECT_THAT(error_.get_error_msg(22), "Error: expected identifier after ','. Line: 22");
+    EXPECT_THAT(error_.get_error_msg(24), "Error: variable val already exists, name must be unique. Line: 24");
+    EXPECT_THAT(error_.get_error_msg(26), "Error: invalid loop. Line: 26");
+    EXPECT_THAT(error_.get_error_msg(28), "Error: variable test is not defined. Line: 28");
+    EXPECT_THAT(error_.get_error_msg(30), "Error: invalid loop. Line: 30");
+    EXPECT_THAT(error_.get_error_msg(32), "Error: invalid loop. Line: 32");
+    EXPECT_THAT(error_.get_error_msg(34), "Error: variable val already exists, name must be unique. Line: 35");
+    EXPECT_THAT(error_.get_error_msg(36), "Error: endfor doesn't match a for. Line: 38");
+    EXPECT_THAT(error_.get_error_msg(37), "expected closing endfor before EOF");
 }
 
 TEST_F (compiler_test, nested_range)
@@ -231,8 +231,8 @@ TEST_F (compiler_test, test_for_vector)
     user_map um {{"vect", cities}};
     disable_stdout(compile(um));
 
-    EXPECT_THAT(error_.get_error_msg(0), "loop statement requires an identifier");
-    EXPECT_THAT(error_.get_error_msg(0), "loop statement requires an identifier");
+    EXPECT_THAT(error_.get_error_msg(0), "Error: loop statement requires an identifier. Line: 2");
+    EXPECT_THAT(error_.get_error_msg(0), "Error: loop statement requires an identifier. Line: 2");
 }
 
 TEST_F (compiler_test, test_for_empty_vector)
@@ -262,7 +262,7 @@ TEST_F (compiler_test, test_for_empty_vector)
     user_map um {{"vect", cities}};
     disable_stdout(compile(um));
 
-    EXPECT_THAT(error_.get_error_msg(0), "variable voct is not defined");
+    EXPECT_THAT(error_.get_error_msg(0), "Error: variable voct is not defined. Line: 2");
 }
 
 TEST_F (compiler_test, test_for_map)
@@ -310,8 +310,8 @@ TEST_F (compiler_test, test_for_map)
     disable_stdout(compile(um));
 
     EXPECT_THAT(keys.size(), 0);
-    EXPECT_THAT(error_.get_error_msg(0), "expect 'in' operator after identifier");
-    EXPECT_THAT(error_.get_error_msg(2), "variable doct is not defined");
+    EXPECT_THAT(error_.get_error_msg(0), "Error: expect 'in' operator after identifier. Line: 3");
+    EXPECT_THAT(error_.get_error_msg(2), "Error: variable doct is not defined. Line: 7");
 }
 
 TEST_F (compiler_test, test_if)
@@ -439,9 +439,9 @@ TEST_F (compiler_test, test_if_variables)
     user_map um {{"map", capitals}, {"vec", values}};
     disable_stdout(compile(um));
 
-    EXPECT_THAT(error_.get_error_msg(0), "map [ error ] not found");
-    EXPECT_THAT(error_.get_error_msg(1), "vec [ 80 ] not found");
-    EXPECT_THAT(error_.get_error_msg(2), "unexpected token found: MINUS");
+    EXPECT_THAT(error_.get_error_msg(0), "Error: map[error] not found. Line: 2");
+    EXPECT_THAT(error_.get_error_msg(1), "Error: vec[80] not found. Line: 4");
+    EXPECT_THAT(error_.get_error_msg(2), "Error: unexpected token found: MINUS. Line: 6");
 }
 
 TEST_F (compiler_test, test_insert)

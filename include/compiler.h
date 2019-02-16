@@ -62,11 +62,11 @@ namespace amps
         bool run_endif(parser_iterator &it);
         bool run_insert(parser_iterator &it, metainfo &metainfo);
 
-        object compute(token_types oper);
-        object compute_unary(token_types oper);
+        object compute(token_types oper, size_t line);
+        object compute_unary(token_types oper, size_t line);
         object compute_numbers(number_t a,
                                number_t b,
-                               token_types oper);
+                               token_types oper, size_t line);
         object compute_strings(std::string a,
                                std::string b,
                                token_types oper);
@@ -87,10 +87,12 @@ namespace amps
         friend class compiler;
 
         const tokens &tokens_;
+        const metarange &range_;
         size_t cursor_;
 
-        parser_iterator(const tokens &tks) :
+        parser_iterator(const tokens &tks, const metarange &range) :
             tokens_(tks),
+            range_(range),
             cursor_(0)
         {
         }
@@ -138,6 +140,11 @@ namespace amps
             while (!is_eot()) {
                 advance();
             }
+        }
+
+        metarange range() const
+        {
+            return range_;
         }
 
         bool match(token_types type)

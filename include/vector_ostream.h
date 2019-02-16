@@ -48,8 +48,7 @@ namespace amps
                     continue;
                 }
 
-                // add string without \n
-                data_.push_back(std::string(start, len - 1));
+                data_.push_back(std::string(start, len));
                 start += len + 1;
                 len = 0;
             }

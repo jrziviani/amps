@@ -59,7 +59,7 @@ namespace amps
             }
 
             // execute the program in the meta tags
-            parser_iterator it(metainfo[counter].tokens);
+            parser_iterator it(metainfo[counter].tokens, metainfo[counter].range);
             while (!it.is_eot()) {
                 if (!run_statement(it, metainfo)) {
                     context_.stack_clear();
@@ -71,11 +71,11 @@ namespace amps
         // it's not expected to have any branch left after
         // program execution
         if (branches_.size() > 0 && branches_.back().type == token_types::FOR) {
-            error_.log("expected endfor");
+            error_.log("expected closing endfor before EOF");
             branches_.clear();
         }
         else if (branches_.size() > 0 && branches_.back().type == token_types::IF) {
-            error_.log("expected endif");
+            error_.log("expected closing endif before EOF");
             branches_.clear();
         }
 
@@ -136,7 +136,8 @@ namespace amps
 
         auto result = context_.stack_pop();
         if (result == nullopt) {
-            error_.log("print statement cannot evaluate its parameters");
+            error_.log("print cannot be evaluated. Line: ",
+                       it.range().line);
             result_ += string("<null>");
             return false;
         }
@@ -167,15 +168,16 @@ namespace amps
         }
 
         if (!it.match(token_types::IDENTIFIER)) {
-            error_.log("loop statement requires an identifier");
+            error_.critical("loop statement requires an identifier",
+                            ". Line: ", it.range().line);
             return false;
         }
 
         string id_or_key = it.look_back().value().value_or("");
         if (context_.environment_is_key_defined(id_or_key)) {
-            error_.log("variable",
-                       id_or_key,
-                       "already exists, name must be unique");
+            error_.critical("variable ", id_or_key,
+                            " already exists, name must be unique",
+                            ". Line: ", it.range().line);
             return false;
         }
 
@@ -185,20 +187,23 @@ namespace amps
                 value = it.look_back().value().value_or("");
             }
             else {
-                error_.log("expected an identifier after ','");
+                error_.critical("expected identifier after ','. Line: ",
+                                it.range().line);
                 return false;
             }
 
             if (context_.environment_is_key_defined(value) ||
                 id_or_key == value) {
-                error_.log("variable", value,
-                           "already exists, name must be unique");
+                error_.critical("variable ", value,
+                                " already exists, name must be unique",
+                                ". Line: ", it.range().line);
                 return false;
             }
         }
 
         if (!it.match(token_types::IN)) {
-            error_.log("expect 'in' operator after identifier");
+            error_.critical("expect 'in' operator after identifier. Line: ",
+                            it.range().line);
             return false;
         }
 
@@ -210,7 +215,7 @@ namespace amps
         if (it.match(token_types::RANGE) && value.size() == 0) {
 
             if (!it.match(token_types::LEFT_PAREN)) {
-                error_.log("expect '('");
+                error_.critical("expect '('. Line: ", it.range().line);
                 return false;
             }
 
@@ -220,18 +225,20 @@ namespace amps
                 }
 
                 if (context_.stack_top_type() != vobject_types::NUMBER) {
-                    error_.log("range expects only numbers");
+                    error_.critical("range expects only numbers. Line: ",
+                                    it.range().line);
                     return false;
                 }
 
                 if (i < 2 && !it.match(token_types::COMMA)) {
-                    error_.log("expect ','");
+                    error_.critical("expect ','. Line: ", it.range().line);
                     return false;
                 }
             }
 
             if (!it.match(token_types::RIGHT_PAREN)) {
-                error_.log("expected closing ')'");
+                error_.critical("expected closing ')'. Line: ",
+                                it.range().line);
                 return false;
             }
 
@@ -278,7 +285,8 @@ namespace amps
             it.next();
 
             if (!context_.environment_is_key_defined(vect)) {
-                error_.log("variable", vect, "is not defined");
+                error_.critical("variable ", vect, " is not defined. Line: ",
+                                it.range().line);
                 return false;
             }
 
@@ -306,7 +314,8 @@ namespace amps
             it.next();
 
             if (!context_.environment_is_key_defined(tbl)) {
-                error_.log("variable", tbl, "is not defined");
+                error_.critical("variable ", tbl, " is not defined. Line: ",
+                                it.range().line);
                 return false;
             }
 
@@ -327,7 +336,7 @@ namespace amps
             branches_.push_back(branch{token_types::FOR, true});
         }
         else {
-            error_.log("invalid loop");
+            error_.critical("invalid loop. Line: ", it.range().line);
             return false;
         }
 
@@ -353,7 +362,8 @@ namespace amps
         if (branches_.size() == 0 ||
             (branches_.size() > 0 &&
             branches_.back().type != token_types::FOR)) {
-            error_.log("endfor doesn't match a for");
+            error_.critical("endfor doesn't match a for. Line: ",
+                            it.range().line);
             return false;
         }
 
@@ -427,7 +437,7 @@ namespace amps
         }
 
         if (!parse_expression(it)) {
-            error_.log("if cannot be parsed");
+            error_.critical("if cannot be parsed. Line: ", it.range().line);
             return false;
         }
 
@@ -451,7 +461,8 @@ namespace amps
         }
 
         if (branches_.back().type != token_types::IF) {
-            error_.log("expected ENDIF, ELSE, or ELIF");
+            error_.critical("expected ENDIF, ELSE, or ELIF. Line: ",
+                            it.range().line);
             return false;
         }
 
@@ -471,7 +482,8 @@ namespace amps
         }
 
         if (branches_.back().type != token_types::IF) {
-            error_.log("expected ENDIF, ELSE, or ELIF");
+            error_.critical("expected ENDIF, ELSE, or ELIF. Line: ",
+                            it.range().line);
             return false;
         }
 
@@ -484,7 +496,8 @@ namespace amps
         it.next();
 
         if (branches_.size() == 0 || branches_.back().type != token_types::IF) {
-            error_.log("expected ENDIF, ELSE, or ELIF");
+            error_.critical("expected ENDIF, ELSE, or ELIF. Line: ",
+                            it.range().line);
             return false;
         }
 
@@ -502,13 +515,15 @@ namespace amps
         }
 
         if (!it.match(token_types::STRING)) {
-            error_.log("expected file name string");
+            error_.critical("expected file name string. Line: ",
+                            it.range().line);
             return false;
         }
 
         string filename = it.look_back().value().value_or("");
         if (!is_readable_file(filename)) {
-            error_.log("template", filename, "cannot be accessed");
+            error_.critical("template ", filename, " cannot be accessed",
+                            "Line: ", it.range().line);
             return false;
         }
 
@@ -541,8 +556,9 @@ namespace amps
             info.remove(context_.get_counter());
 
             if (++cache_it->second.iterations > MAX_ITERATION) {
-                error_.log(filename, "has run for more than",
-                           MAX_ITERATION, ", cannot execute it");
+                error_.critical(filename, " has run for more than ",
+                                MAX_ITERATION, ", cannot execute it",
+                                ". Line:", it.range().line);
                 return true;
             }
 
@@ -575,7 +591,7 @@ namespace amps
                 return false;
             }
 
-            auto result = compute(oper.type());
+            auto result = compute(oper.type(), it.range().line);
             if (result == nullopt) {
                 return false;
             }
@@ -598,7 +614,7 @@ namespace amps
                 return false;
             }
 
-            auto result = compute(oper.type());
+            auto result = compute(oper.type(), it.range().line);
             if (result == nullopt) {
                 return false;
             }
@@ -623,7 +639,7 @@ namespace amps
                 return false;
             }
 
-            auto result = compute(oper.type());
+            auto result = compute(oper.type(), it.range().line);
             if (result == nullopt) {
                 return false;
             }
@@ -646,7 +662,7 @@ namespace amps
                 return false;
             }
 
-            auto result = compute(oper.type());
+            auto result = compute(oper.type(), it.range().line);
             if (result == nullopt) {
                 return false;
             }
@@ -670,7 +686,7 @@ namespace amps
                 return false;
             }
 
-            auto result = compute(oper.type());
+            auto result = compute(oper.type(), it.range().line);
             if (result == nullopt) {
                 return false;
             }
@@ -689,7 +705,7 @@ namespace amps
                 return false;
             }
 
-            auto result = compute_unary(oper.type());
+            auto result = compute_unary(oper.type(), it.range().line);
             if (result == nullopt) {
                 return false;
             }
@@ -748,14 +764,16 @@ namespace amps
                     std::string index = context_.stack_pop_string_or("");
                     std::string id = context_.stack_pop_string_or("");
                     if(!context_.stack_push_from_environment(id, index)) {
-                        error_.log(id, "[", index,"] not found");
+                        error_.critical(id, "[", index, "] not found",
+                                        ". Line: ", it.range().line);
                     }
                 }
                 else if (tp == vobject_types::NUMBER) {
                     number_t index = context_.stack_pop_number_or(0);
                     std::string id = context_.stack_pop_string_or("");
                     if (!context_.stack_push_from_environment(id, index)) {
-                        error_.log(id, "[", index,"] not found");
+                        error_.critical(id, "[", index, "] not found",
+                                        ". Line: ", it.range().line);
                     }
                 }
                 else {
@@ -764,7 +782,8 @@ namespace amps
                 }
 
                 if (!it.match(token_types::RIGHT_BRACKET)) {
-                    error_.log("expect closing ']'");
+                    error_.critical("expect closing ']'. Line: ",
+                                    it.range().line);
                     return false;
                 }
 
@@ -784,7 +803,8 @@ namespace amps
             }
 
             if (!it.match(token_types::RIGHT_PAREN)) {
-                error_.log("expected closing ')'");
+                error_.critical("expected closing ')'. Line: ",
+                                it.range().line);
                 return false;
             }
 
@@ -792,10 +812,12 @@ namespace amps
         }
         else {
             if (it.is_eot()) {
-                error_.log("No token found");
+                error_.critical("no token found. Line: ",
+                                it.range().line);
             }
             else {
-                error_.log("unexpected token found:", it.look().type());
+                error_.critical("unexpected token found: ", it.look().type(),
+                                ". Line: ", it.range().line);
             }
             return false;
         }
@@ -803,7 +825,7 @@ namespace amps
 
     object compiler::compute_numbers(number_t a,
                                      number_t b,
-                                     token_types oper)
+                                     token_types oper, size_t line)
     {
         switch(oper) {
             case token_types::MINUS:
@@ -814,14 +836,14 @@ namespace amps
 
             case token_types::SLASH:
                 if (b == 0) {
-                    error_.log("cannot divide by 0");
+                    error_.critical("cannot divide by 0. Line: ", line);
                     return nullopt;
                 }
                 return object_t(a / b);
 
             case token_types::PERCENT:
                 if (b == 0) {
-                    error_.log("cannot divide by 0");
+                    error_.critical("cannot divide by 0. Line: ", line);
                     return nullopt;
                 }
                 return object_t(a % b);
@@ -889,7 +911,7 @@ namespace amps
         }
     }
 
-    object compiler::compute(token_types oper)
+    object compiler::compute(token_types oper, size_t line)
     {
         auto vb = context_.stack_pop();
         auto va = context_.stack_pop();
@@ -904,7 +926,7 @@ namespace amps
         if (va_type == vobject_types::NUMBER && vb_type == vobject_types::NUMBER) {
             return compute_numbers(va.value().get_number_or(0),
                                    vb.value().get_number_or(0),
-                                   oper);
+                                   oper, line);
         }
         else if (va_type == vobject_types::STRING && vb_type == vobject_types::STRING) {
             return compute_strings(va.value().get_string_or(""),
@@ -933,14 +955,16 @@ namespace amps
             }
         }
 
-        error_.log("Mismatched types. ", va_type, "[",
-                   va.value().get_number_or(0), "] cannot compute with ",
-                   vb_type, "[", vb.value().get_number_or(0), "]");
+        error_.critical("Mismatched types. ", va_type, " [",
+                        va.value().get_number_or(0),
+                        "] cannot compute with ",
+                        vb_type, " [", vb.value().get_number_or(0),
+                        "]. Line: ", line);
 
         return nullopt;
     }
 
-    object compiler::compute_unary(token_types oper)
+    object compiler::compute_unary(token_types oper, size_t line)
     {
         auto t = context_.stack_pop();
         if (t == nullopt) {
@@ -959,9 +983,9 @@ namespace amps
             return object_t((t.value().get_string_or("").size() == 0) ? true : false);
         }
 
-        error_.log("Unary operator '", oper,
-                   "' cannot be used with value '",
-                   t.value().to_string());
+        error_.critical("Unary operator '", oper,
+                        "' cannot be used with value '",
+                        t.value().to_string(), ". Line: ", line);
 
         return nullopt;
     }

@@ -20,6 +20,7 @@ namespace amps
     {
         size_t start;
         size_t end;
+        size_t line;
     };
 
     struct metadata

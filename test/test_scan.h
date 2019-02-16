@@ -109,12 +109,11 @@ TEST_F (scan_test, valid_and_invalid_blocks)
     };
 
     std::array<std::string, 28> errors_expected = {
-        "", "max string length allowed 256", "", "only 32-bit numbers allowed", "",
-        "unexpected character", "", "", "", "",
-        "", "", "", "", "",
-        "", "", "expects =", "expects %", "expects =",
-        "only 32-bit numbers allowed", "", "", "", "",
-        "max id length allowed:", "",
+        "", "max string length allowed is 256", "", "only 32-bit numbers allowed",
+        "", "unexpected character", "", "", "", "",
+        "", "", "", "", "", "", "",
+        "Error: expects = 0 0 1", "Error: expects % 0 0 1", "Error: expects = 0 0 1",
+        "only 32-bit numbers allowed", "", "", "", "", "max id length allowed:", "",
     };
 
     std::ifstream file("block.2");
