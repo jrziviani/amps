@@ -11,6 +11,7 @@ namespace amps
 {
     compiler::compiler(error &err) :
         running_cache_(false),
+        update_main_cache_(false),
         error_(err),
         current_cache_(0)
     {
@@ -27,6 +28,8 @@ namespace amps
         cache_[metainfo.hash()] = block_cache{counter - 1,
                                               metainfo.size() - 1,
                                               0, 1};
+        update_main_cache_ = true;
+
 
         // program main loop
         for (; counter < metainfo.size(); context_.jump_to(counter + 1)) {
@@ -527,20 +530,33 @@ namespace amps
             return false;
         }
 
+        size_t counter = context_.get_counter();
         scan insert_scan(error_);
         insert_scan.do_scan(read_full(filename));
         metainfo &new_info = insert_scan.get_metainfo();
 
         auto cache_it = cache_.find(new_info.hash());
 
+        for (auto &kv : cache_) {
+            if (counter >= kv.second.start &&
+                counter <= kv.second.end) {
+                kv.second.end = counter;
+            }
+        }
+
         // the block inserted isn't cached: cache it, put the content in
         // the current program and execute it
         if (cache_it == cache_.end()) {
-            size_t counter = context_.get_counter();
+            if (update_main_cache_) {
+                cache_[info.hash()].end = counter;
+                update_main_cache_ = false;
+            }
+
             auto diff = static_cast<metainfo::difference_type>(counter);
             cache_[new_info.hash()] = block_cache{counter - 1,
                                                   new_info.size() + counter,
                                                   0, 1};
+
             size_t new_size = new_info.size();
             copy(info.begin() + diff + 1, info.end(), back_inserter(new_info));
             info.resize(info.size() + new_size);
@@ -553,7 +569,7 @@ namespace amps
         // the block is cached: execute it
         else {
             // remove the "insert" code...
-            info.remove(context_.get_counter());
+            info.remove(counter);
 
             if (++cache_it->second.iterations > MAX_ITERATION) {
                 error_.critical(filename, " has run for more than ",
@@ -563,7 +579,7 @@ namespace amps
             }
 
             // ...and execute the cached code
-            cache_it->second.resume = context_.get_counter() - 1;
+            cache_it->second.resume = counter - 1;
             context_.jump_to(cache_it->second.start);
 
             running_cache_ = true;

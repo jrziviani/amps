@@ -31,6 +31,7 @@ namespace amps
     class compiler
     {
         bool running_cache_;
+        bool update_main_cache_;
         std::string result_;
         error &error_;
         size_t current_cache_;
@@ -74,6 +75,7 @@ namespace amps
     public:
         compiler(error &err);
         std::string generate(metainfo &metainfo, const user_map &usermap);
+        void reset();
 
         template <typename F>
         void set_callback(F&& callback)
