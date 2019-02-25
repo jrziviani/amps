@@ -17,6 +17,17 @@ namespace amps
     {
     }
 
+    void compiler::reset()
+    {
+        running_cache_ = false;
+        update_main_cache_ = false;
+        std::string result_ = string("");
+        current_cache_ = 0;
+        branches_.clear();
+        cache_.clear();
+        context_.reset();
+    }
+
     string compiler::generate(metainfo &metainfo, const user_map &usermap)
     {
         result_ = string("");

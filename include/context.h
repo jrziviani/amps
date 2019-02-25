@@ -25,6 +25,8 @@ namespace amps
         context &operator=(context&)  = delete;
         context &operator=(context&&) = delete;
 
+        void reset();
+
         // --------------------------
         // handles the prog counter
         // --------------------------
@@ -69,6 +71,13 @@ namespace amps
                 const user_var &data) const;
         void environment_increment_value(const std::string &key);
     };
+
+    inline void context::reset()
+    {
+        counter_ = 0;
+        environment_.clear();
+        stack_.clear();
+    }
 
     inline void context::jump_to(size_t n)
     {
