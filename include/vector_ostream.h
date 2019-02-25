@@ -78,6 +78,11 @@ namespace amps
         vector_ostreambuf &operator=(const vector_ostreambuf&) = delete;
         vector_ostreambuf &operator=(vector_ostreambuf&&) = delete;
 
+        const std::vector<std::string> get_errors() const
+        {
+            return data_;
+        }
+
         std::string get_str(size_t index) const
         {
             if (index >= data_.size()) {
