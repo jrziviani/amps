@@ -53,7 +53,7 @@ namespace amps
                         std::istreambuf_iterator<char>());
 
         scanner_.do_scan(content);
-
+        compiler_.reset();
     }
 
     std::string engine::render(const user_map &um)

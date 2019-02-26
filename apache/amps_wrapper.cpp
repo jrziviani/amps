@@ -1,6 +1,7 @@
 #ifdef __cplusplus
 
 #include "engine.h"
+#include "vector_ostream.h"
 
 #include "httpd.h"
 
@@ -40,11 +41,15 @@ static void get_custom_template(request_rec *r, char **result)
         return;
     }
 
-    amps::error err;
+    amps::vector_ostreambuf buff;
+    std::ostream stream(&buff);
+
+    amps::error err(stream);
     amps::engine engine(err);
     engine.set_template_directory("/tmp");
 
-    amps::user_map ht {{"user_data", query_to_map(r->args)}};
+    auto user = query_to_map(r->args);
+    amps::user_map ht {{"user_data", user}};
 
     // html template is the default, xml returned when content=xml
     auto content = user.find("content");
@@ -56,7 +61,20 @@ static void get_custom_template(request_rec *r, char **result)
         engine.prepare_template("template_xml.tpl");
         r->content_type = "text/xml";
     }
+
     string rendered = engine.render(ht);
+
+    const auto &xerr = buff.get_errors();
+    if (xerr.size() > 0) {
+        engine.prepare_template("errors.tpl");
+        r->content_type = "text/html";
+        amps::user_map errht {{"errors", xerr}};
+        string r = engine.render(errht);
+        *result = (char*)malloc(sizeof(char) * r.size() + 1);
+        strcpy(*result, r.c_str());
+        (*result)[r.size()] = '\0';
+        return;
+    }
 
     *result = (char*)malloc(sizeof(char) * rendered.size() + 1);
     strcpy(*result, rendered.c_str());
