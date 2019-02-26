@@ -21,7 +21,7 @@ namespace amps
     {
         running_cache_ = false;
         update_main_cache_ = false;
-        std::string result_ = string("");
+        result_ = string("");
         current_cache_ = 0;
         branches_.clear();
         cache_.clear();
