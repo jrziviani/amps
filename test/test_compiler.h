@@ -535,6 +535,25 @@ TEST_F (compiler_test, test_cycle_insert_1)
     EXPECT_THAT(result_content, rendered);
 }
 
+TEST_F (compiler_test, test_multiple_insert)
+{
+    using std::string;
+
+    set_file("code.insert.4");
+
+    std::string rendered = compile();
+
+    std::ifstream result_file("code.insert.result456");
+    string result_content;
+    result_file.seekg(0, std::ios::end);
+    result_content.reserve(result_file.tellg());
+    result_file.seekg(0, std::ios::beg);
+    result_content.assign((std::istreambuf_iterator<char>(result_file)),
+                           std::istreambuf_iterator<char>());
+
+    EXPECT_THAT(result_content, rendered);
+}
+
 TEST_F (compiler_test, test_print)
 {
     using amps::context;

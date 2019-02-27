@@ -546,21 +546,22 @@ namespace amps
         insert_scan.do_scan(read_full(filename));
         metainfo &new_info = insert_scan.get_metainfo();
 
-        auto cache_it = cache_.find(new_info.hash());
-
-        for (auto &kv : cache_) {
-            if (counter >= kv.second.start &&
-                counter <= kv.second.end) {
-                kv.second.end = counter;
-            }
+        if (update_main_cache_) {
+            cache_[info.hash()].end = counter;
+            update_main_cache_ = false;
         }
+
+        auto cache_it = cache_.find(new_info.hash());
 
         // the block inserted isn't cached: cache it, put the content in
         // the current program and execute it
         if (cache_it == cache_.end()) {
-            if (update_main_cache_) {
-                cache_[info.hash()].end = counter;
-                update_main_cache_ = false;
+
+            for (auto &kv : cache_) {
+                if (counter >= kv.second.start &&
+                        counter <= kv.second.end) {
+                    kv.second.end = new_info.size() + counter;
+                }
             }
 
             auto diff = static_cast<metainfo::difference_type>(counter);
@@ -579,6 +580,14 @@ namespace amps
 
         // the block is cached: execute it
         else {
+
+            for (auto &kv : cache_) {
+                if (counter >= kv.second.start &&
+                        counter <= kv.second.end) {
+                    kv.second.end = counter;
+                }
+            }
+
             // remove the "insert" code...
             info.remove(counter);
 
