@@ -4,3 +4,4 @@ cscope.out
 src/old/
 tags
 /.vs/amps/v15
+compile_commands.json
