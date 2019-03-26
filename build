@@ -8,6 +8,7 @@ clean() {
     echo "*****************************************"
     [[ -d bin ]] && rm -fr bin
     [[ -d .build ]] && rm -fr .build
+    [[ -f compile_commands.json ]] && rm compile_commands.json
 }
 
 debug() {
@@ -17,24 +18,31 @@ debug() {
     local verbose="$1"
     local static="$2"
     local dynamic="$3"
+    local buildsys="$4"
 
     if [[ "$static" == 1 ]]; then
         $CMAKE -DCMAKE_BUILD_TYPE=Debug \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-               -Denable-static=ON ../../..
+               -Denable-static=ON \
+               -G"$buildsys" \
+               -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ../../..
 
         [[ $? -eq 0 ]] || exit 1
-        [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || make -j$(nproc)
+        [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . || cmake --build .
     fi
 
     if [[ "$dynamic" == 1 ]]; then
         $CMAKE -DCMAKE_BUILD_TYPE=Debug \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-               -Denable-static=OFF ../../..
+               -Denable-static=OFF \
+               -G"$buildsys" \
+               -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ../../..
 
         [[ $? -eq 0 ]] || exit 1
-        [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || make -j$(nproc)
+        [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . || cmake --build .
     fi
+
+    cp compile_commands.json ../../..
 }
 
 release() {
@@ -44,26 +52,33 @@ release() {
     local verbose="$1"
     local static="$2"
     local dynamic="$3"
+    local buildsys="$4"
 
     if [[ "$static" == 1 ]]; then
         $CMAKE -DCMAKE_BUILD_TYPE=Release \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-               -Denable-static=ON ../../..
+               -Denable-static=ON \
+               -G"$buildsys" \
+               -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ../../..
 
         [[ $? -eq 0 ]] || exit 1
-        [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || \
-                                           make -j$(nproc)
+        [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . || \
+                                           cmake --build .
     fi
 
     if [[ "$dynamic" == 1 ]]; then
         $CMAKE -DCMAKE_BUILD_TYPE=Release \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-               -Denable-static=OFF ../../..
+               -Denable-static=OFF \
+               -G"$buildsys" \
+               -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ../../..
 
         [[ $? -eq 0 ]] || exit 1
-        [[ "$verbose" == 1 ]] && VERBOSE=1 make -j$(nproc) || \
-                                           make -j$(nproc)
+        [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . || \
+                                           cmake --build .
     fi
+
+    cp compile_commands.json ../../..
 }
 
 coverage() {
@@ -74,6 +89,7 @@ coverage() {
     local dynamic="$2"
     local debug="$3"
     local verbose="$4"
+    local buildsys="$5"
 
     [[ -d googletest-build ]] || update="ON"
     [[ -d googletest-src ]] || update="ON"
@@ -82,6 +98,7 @@ coverage() {
         $CMAKE -DCMAKE_BUILD_TYPE=Release \
                -Denable-test=ON \
                -Denable-static="$static" \
+               -G"$buildsys" \
                -Dupdate-gtest="$update" ../../..
     fi
 
@@ -89,6 +106,7 @@ coverage() {
         $CMAKE -DCMAKE_BUILD_TYPE=Debug \
                -Denable-test=ON \
                -Denable-static="$static" \
+               -G"$buildsys" \
                -Dupdate-gtest="$update" ../../..
     fi
 
@@ -117,6 +135,7 @@ usage() {
             --windows       for Windows
             --update        update googletest
             --verbose       build verbose mode
+            --ninja         build with ninja
             --help          print this help and exit
 EOF
     exit 1
@@ -128,14 +147,14 @@ just_make() {
     echo "*****************************************"
     if [[ -d .build/release ]]; then
         cd .build/release
-        make -j$(nproc)
+        cmake --build .
         cp -a bin/* ../../bin/release
         cd ../..
     fi
 
     if [[ -d .build/debug ]]; then
         cd .build/debug
-        make -j$(nproc)
+        cmake --build .
         cp -a bin/* ../../bin/debug
         cd ../..
     fi
@@ -146,9 +165,10 @@ build_binary() {
     local dynamic="$2"
     local debug="$3"
     local verbose="$4"
+    local buildsys="$5"
 
-    [[ "$debug" == 1 ]] && debug "$verbose" "$static" "$dynamic" \
-                        || release "$verbose" "$static" "$dynamic"
+    [[ "$debug" == 1 ]] && debug "$verbose" "$static" "$dynamic" "$buildsys"\
+                        || release "$verbose" "$static" "$dynamic" "$buildsys"
 }
 
 build_test() {
@@ -156,8 +176,9 @@ build_test() {
     local dynamic="$2"
     local debug="$3"
     local verbose="$4"
+    local buildsys="$5"
 
-    coverage "$static" "$release" "$debug" "$update" "$windows"
+    coverage "$static" "$release" "$debug" "$update" "$windows" "$buildsys"
 }
 
 main() {
@@ -171,6 +192,7 @@ main() {
     local binary=0
     local static=0
     local dynamic=0
+    local buildsys="Unix Makefiles"
     local update="OFF"
 
     if [[ -z "$1" ]]; then
@@ -213,6 +235,9 @@ main() {
             --update)
                 update="ON"
                 ;;
+            --ninja)
+                buildsys="Ninja"
+                ;;
             --verbose)
                 verbose=1
                 ;;
@@ -226,6 +251,13 @@ main() {
     done
 
     [[ "$clear" == 1 ]] && clean
+
+    if [[ "$buildsys" == "ninja" ]]; then
+        if [[ $(which ninja > /dev/null 2>&1; echo $?) != 0 ]]; then
+            echo "Ninja build system not found, using Make instead"
+            buildsys="make";
+        fi
+    fi
 
     if [[ "$windows" == 1 ]]; then
         #export CC=/usr/bin/i686-w64-mingw32-gcc
@@ -242,7 +274,7 @@ main() {
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
-                build_binary "$static" "$dynamic" 0 "$verbose"
+                build_binary "$static" "$dynamic" 0 "$verbose" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/windows/release
             fi
@@ -251,7 +283,7 @@ main() {
                 mkdir -p ../../bin/windows/debug
                 mkdir -p debug
                 cd debug
-                build_binary "$static" "$dynamic" 1 "$verbose"
+                build_binary "$static" "$dynamic" 1 "$verbose" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/windows/debug
             fi
@@ -266,7 +298,7 @@ main() {
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
-                build_test "$static" "$dynamic" 0 "$update"
+                build_test "$static" "$dynamic" 0 "$update" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/windows/release
             fi
@@ -275,7 +307,7 @@ main() {
                 mkdir -p ../../bin/windows/debug
                 mkdir -p debug
                 cd debug
-                build_test "$static" "$dynamic" 1 "$update"
+                build_test "$static" "$dynamic" 1 "$update" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/windows/debug
             fi
@@ -298,7 +330,7 @@ main() {
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
-                build_binary "$static" "$dynamic" 0 "$verbose"
+                build_binary "$static" "$dynamic" 0 "$verbose" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/linux/release
             fi
@@ -307,7 +339,7 @@ main() {
                 mkdir -p ../../bin/linux/debug
                 mkdir -p debug
                 cd debug
-                build_binary "$static" "$dynamic" 1 "$verbose"
+                build_binary "$static" "$dynamic" 1 "$verbose" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/linux/debug
             fi
@@ -323,7 +355,7 @@ main() {
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
-                build_test "$static" "$dynamic" 0 "$update"
+                build_test "$static" "$dynamic" 0 "$update" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/linux/release
             fi
@@ -332,7 +364,7 @@ main() {
                 mkdir -p ../../bin/linux/debug
                 mkdir -p debug
                 cd debug
-                build_test "$static" "$dynamic" 1 "$update"
+                build_test "$static" "$dynamic" 1 "$update" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/linux/debug
             fi
