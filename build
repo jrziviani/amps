@@ -250,6 +250,7 @@ main() {
         #export CXX=/usr/bin/i686-w64-mingw32-g++
         #CMAKE=/usr/bin/mingw32-cmake
         CMAKE=cmake
+        buildsys="MinGW Makefiles"
 
         if [[ "$binary" == 1 ]]; then
             mkdir -p bin/windows
