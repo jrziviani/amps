@@ -238,10 +238,10 @@ main() {
 
     [[ "$clear" == 1 ]] && clean
 
-    if [[ "$buildsys" == "ninja" ]]; then
+    if [[ "$buildsys" == "Ninja" ]]; then
         if [[ $(which ninja > /dev/null 2>&1; echo $?) != 0 ]]; then
             echo "Ninja build system not found, using Make instead"
-            buildsys="make";
+            buildsys="Unix Makefiles";
         fi
     fi
 
@@ -250,7 +250,6 @@ main() {
         #export CXX=/usr/bin/i686-w64-mingw32-g++
         #CMAKE=/usr/bin/mingw32-cmake
         CMAKE=cmake
-        buildsys="MSYS Makefiles"
 
         if [[ "$binary" == 1 ]]; then
             mkdir -p bin/windows

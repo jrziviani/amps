@@ -32,6 +32,6 @@ addons:
 script:
     - export CC=gcc-7
     - export CXX=g++-7
-    - gcc -v && g++ -v && cmake --version
+    - gcc -v && g++ -v && cmake --version && cmake --help
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./build --clear --linux --test --binary --debug --static; fi
     - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ./build --clear --windows --test --binary --debug --static; fi
