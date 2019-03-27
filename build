@@ -17,9 +17,9 @@ debug() {
     echo "*****************************************"
     local verbose="$1"
     local static="$2"
-    local dynamic="$3"
-    local buildsys="$4"
+    local buildsys="$3"
 
+    # compile static
     if [[ "$static" == 1 ]]; then
         $CMAKE -DCMAKE_BUILD_TYPE=Debug \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
@@ -29,9 +29,9 @@ debug() {
 
         [[ $? -eq 0 ]] || exit 1
         [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . || cmake --build .
-    fi
 
-    if [[ "$dynamic" == 1 ]]; then
+    # compile dynamic lib
+    else
         $CMAKE -DCMAKE_BUILD_TYPE=Debug \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
                -Denable-static=OFF \
@@ -51,9 +51,9 @@ release() {
     echo "*****************************************"
     local verbose="$1"
     local static="$2"
-    local dynamic="$3"
-    local buildsys="$4"
+    local buildsys="$3"
 
+    # compile static lib
     if [[ "$static" == 1 ]]; then
         $CMAKE -DCMAKE_BUILD_TYPE=Release \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
@@ -64,9 +64,8 @@ release() {
         [[ $? -eq 0 ]] || exit 1
         [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . || \
                                            cmake --build .
-    fi
-
-    if [[ "$dynamic" == 1 ]]; then
+    # compile dynamic lib
+    else
         $CMAKE -DCMAKE_BUILD_TYPE=Release \
                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
                -Denable-static=OFF \
@@ -86,10 +85,9 @@ coverage() {
     echo "** Running test cases                  **"
     echo "*****************************************"
     local static="$1"
-    local dynamic="$2"
-    local debug="$3"
-    local verbose="$4"
-    local buildsys="$5"
+    local debug="$2"
+    local verbose="$3"
+    local buildsys="$4"
 
     [[ -d googletest-build ]] || update="ON"
     [[ -d googletest-src ]] || update="ON"
@@ -127,15 +125,13 @@ usage() {
             --clear         delete build artifacts
             --binary        build binaries
             --test          build (and run) test with coverage
-            --debug         debug symbols on
-            --release       optimizations on
-            --static        static library
-            --dynamic       dynamic library
+            --debug         debug symbols on (off by default)
+            --static        static library (dynamic by default)
             --linux         for Linux
             --windows       for Windows
             --update        update googletest
             --verbose       build verbose mode
-            --ninja         build with ninja
+            --ninja         build with ninja (unix make by default)
             --help          print this help and exit
 EOF
     exit 1
@@ -162,21 +158,19 @@ just_make() {
 
 build_binary() {
     local static="$1"
-    local dynamic="$2"
-    local debug="$3"
-    local verbose="$4"
-    local buildsys="$5"
+    local debug="$2"
+    local verbose="$3"
+    local buildsys="$4"
 
-    [[ "$debug" == 1 ]] && debug "$verbose" "$static" "$dynamic" "$buildsys"\
-                        || release "$verbose" "$static" "$dynamic" "$buildsys"
+    [[ "$debug" == 1 ]] && debug "$verbose" "$static" "$buildsys"\
+                        || release "$verbose" "$static" "$buildsys"
 }
 
 build_test() {
     local static="$1"
-    local dynamic="$2"
-    local debug="$3"
-    local verbose="$4"
-    local buildsys="$5"
+    local debug="$2"
+    local verbose="$3"
+    local buildsys="$4"
 
     coverage "$static" "$release" "$debug" "$update" "$windows" "$buildsys"
 }
@@ -185,13 +179,11 @@ main() {
     local test=0
     local clear=0
     local debug=0
-    local release=0
     local windows=0
     local linux=0
     local verbose=0
     local binary=0
     local static=0
-    local dynamic=0
     local buildsys="Unix Makefiles"
     local update="OFF"
 
@@ -217,14 +209,8 @@ main() {
             --debug)
                 debug=1
                 ;;
-            --release)
-                release=1
-                ;;
             --static)
                 static=1
-                ;;
-            --dynamic)
-                dynamic=1
                 ;;
             --linux)
                 linux=1
@@ -270,20 +256,21 @@ main() {
             mkdir -p .build/windows
             cd .build/windows
 
-            if [[ "$release" == 1 ]]; then
+            # generate release version
+            if [[ "$debug" == 0 ]]; then
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
-                build_binary "$static" "$dynamic" 0 "$verbose" "$buildsys"
+                build_binary "$static" 0 "$verbose" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/windows/release
-            fi
 
-            if [[ "$debug" == 1 ]]; then
+            # generate debug version
+            else
                 mkdir -p ../../bin/windows/debug
                 mkdir -p debug
                 cd debug
-                build_binary "$static" "$dynamic" 1 "$verbose" "$buildsys"
+                build_binary "$static" 1 "$verbose" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/windows/debug
             fi
@@ -294,20 +281,21 @@ main() {
             mkdir -p .build/windows
             cd .build/windows
 
-            if [[ "$release" == 1 ]]; then
+            # generate release version
+            if [[ "$debug" == 0 ]]; then
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
-                build_test "$static" "$dynamic" 0 "$update" "$buildsys"
+                build_test "$static" 0 "$update" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/windows/release
-            fi
 
-            if [[ "$debug" == 1 ]]; then
+            # generate debug version
+            else
                 mkdir -p ../../bin/windows/debug
                 mkdir -p debug
                 cd debug
-                build_test "$static" "$dynamic" 1 "$update" "$buildsys"
+                build_test "$static" 1 "$update" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/windows/debug
             fi
@@ -326,20 +314,21 @@ main() {
             mkdir -p .build/linux
             cd .build/linux
 
-            if [[ "$release" == 1 ]]; then
+            # generate release version
+            if [[ "$debug" == 0 ]]; then
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
-                build_binary "$static" "$dynamic" 0 "$verbose" "$buildsys"
+                build_binary "$static" 0 "$verbose" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/linux/release
-            fi
 
-            if [[ "$debug" == 1 ]]; then
+            # generate debug version
+            else
                 mkdir -p ../../bin/linux/debug
                 mkdir -p debug
                 cd debug
-                build_binary "$static" "$dynamic" 1 "$verbose" "$buildsys"
+                build_binary "$static" 1 "$verbose" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/linux/debug
             fi
@@ -351,20 +340,21 @@ main() {
             mkdir -p .build/linux
             cd .build/linux
 
-            if [[ "$release" == 1 ]]; then
+            # generate release version
+            if [[ "$debug" == 0 ]]; then
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
-                build_test "$static" "$dynamic" 0 "$update" "$buildsys"
+                build_test "$static" 0 "$update" "$buildsys"
                 cd ..
                 cp -a release/bin/* ../../bin/linux/release
-            fi
 
-            if [[ "$debug" == 1 ]]; then
+            # generate debug version
+            else
                 mkdir -p ../../bin/linux/debug
                 mkdir -p debug
                 cd debug
-                build_test "$static" "$dynamic" 1 "$update" "$buildsys"
+                build_test "$static" 1 "$update" "$buildsys"
                 cd ..
                 cp -a debug/bin/* ../../bin/linux/debug
             fi
