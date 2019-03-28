@@ -250,6 +250,7 @@ main() {
         #export CXX=/usr/bin/i686-w64-mingw32-g++
         #CMAKE=/usr/bin/mingw32-cmake
         CMAKE=cmake
+        buildsys="Visual Studio 15 2017"
 
         if [[ "$binary" == 1 ]]; then
             mkdir -p bin/windows
