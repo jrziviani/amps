@@ -248,7 +248,7 @@ TEST_F (compiler_test, test_for_empty_vector)
     vector<string> cities = {};
 
     int64_t step = 0;
-    compiler_.set_callback([&step, &cities](const context &,
+    compiler_.set_callback([&step](const context &,
                                    const vector<branch> &branches) {
         if (step > 0) {
             return;
@@ -286,7 +286,7 @@ TEST_F (compiler_test, test_for_map)
     vector keys = {"Brasil", "USA", "France", "England", "Portugal"};
     vector values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
 
-    compiler_.set_callback([&capitals, &keys, &values](
+    compiler_.set_callback([&capitals, &keys](
                 const context &ctx,
                 const vector<branch> &branches) {
         if (!ctx.environment_is_key_defined("key") ||
@@ -403,7 +403,7 @@ TEST_F (compiler_test, test_if_variables)
     vector<string> values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
 
     int64_t step = 0;
-    compiler_.set_callback([&capitals, &values, &step](
+    compiler_.set_callback([&step](
                 const context &ctx,
                 const vector<branch> &branches) {
         if (!ctx.environment_is_key_defined("map") ||
@@ -465,7 +465,7 @@ TEST_F (compiler_test, test_insert)
     vector<string> values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
 
     int64_t step = 0;
-    compiler_.set_callback([&capitals, &values, &step](
+    compiler_.set_callback([&step](
                 const context &ctx,
                 const vector<branch> &) {
         if (!ctx.environment_is_key_defined("map") ||
