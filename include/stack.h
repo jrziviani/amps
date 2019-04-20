@@ -10,13 +10,13 @@ namespace amps
         objects stack_;
 
     public:
-        gstack()                    = default;
-        gstack(const gstack&)       = delete;
-        gstack(gstack&&)            = delete;
-        ~gstack()                   = default;
+        gstack()                        = default;
+        gstack(const gstack&)           = delete;
+        gstack(gstack&&)                = delete;
+        ~gstack()                       = default;
 
-        gstack &operator=(gstack&)  = delete;
-        gstack &operator=(gstack&&) = delete;
+        gstack operator=(const gstack&) = delete;
+        gstack operator=(gstack&&)      = delete;
 
         object pop();
         object look_back() const;

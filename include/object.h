@@ -52,12 +52,12 @@ namespace amps
         {
         }
 
-        vobject(vobject &&)            = default;
-        vobject(const vobject &)       = default;
-        ~vobject()                     = default;
+        vobject(vobject &&)                 = default;
+        vobject(const vobject &)            = default;
+        ~vobject()                          = default;
 
-        vobject &operator=(vobject &)  = default;
-        vobject &operator=(vobject &&) = default;
+        vobject &operator=(const vobject &) = default;
+        vobject &operator=(vobject &&)      = default;
 
         bool get_bool_or(bool alt) const;
         number_t get_number_or(number_t alt) const;
