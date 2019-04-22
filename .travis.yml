@@ -17,7 +17,7 @@ after_success:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then bash <(curl -s https://codecov.io/bash) -f coverage.info || "Codecov didn't collect coverage reports"; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then coveralls --build-root .build/linux/release --gcov-options '\-lp' -e sample -e .build/linux/release/CMakeFiles -e .build/linux/release/googletest-src -e .build/linux/debug; fi
 after_failure:
-    - cd /home/travis/build/jrziviani/amps/.build/linux/debug; ./amps_test
+    - cd /home/travis/build/jrziviani/amps/.build/linux/debug/bin; ./amps_test
 addons:
     apt:
         sources:
