@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CMAKE=/usr/bin/cmake
+#export CXX=/usr/bin/clang++
 
 clean() {
     echo "*****************************************"
@@ -132,6 +133,7 @@ usage() {
             --update        update googletest
             --verbose       build verbose mode
             --ninja         build with ninja (unix make by default)
+            --apache=PATH   build the apache example module (path to dev apache required)
             --help          print this help and exit
 EOF
     exit 1
@@ -172,7 +174,44 @@ build_test() {
     local verbose="$3"
     local buildsys="$4"
 
-    coverage "$static" "$release" "$debug" "$update" "$windows" "$buildsys"
+    coverage "$static" "$debug" "$verbose" "$buildsys"
+}
+
+build_apache() {
+    local path="$1"
+    local www="$path/www"
+    local example="$www/amps_example"
+    local libtool="$www/build/libtool"
+    local apxs="$www/bin/apxs"
+
+    if [[ ! -d "$www" || ! -d "$example" || ! -f "$libtool" ]]; then
+       echo "$www not found"
+       exit 1
+    fi
+
+    mkdir -p "$example"
+    cp apache/amps_wrapper.cpp apache/amps_wrapper.h apache/mod_cool_framework.c \
+       apache/template.tpl apache/template_xml.tpl "$example"
+
+    local amps="$PWD"
+    pushd "$example"
+    echo "Compiling amps"
+    $libtool --mode=compile g++ -std=c++17 -I"$amps/include" -I"$www/include" \
+       -fPIC amps_wrapper.cpp -lm -o wrapper.lo -c -g3
+    [[ $? != 0 ]] && exit 1
+
+    $apxs -I"$amps/include" -c -i mod_cool_framework.c wrapper.lo libamps-static.a
+    [[ $? != 0 ]] && exit 1
+
+    exit 0
+    echo "Configuring module"
+    echo "LoadFile /usr/lib64/libstdc++.so.6" >> "$path/www/conf/httpd.conf"
+    echo "LoadModule cool_framework_module modules/mod_cool_framework.so" >> "$path/www/conf/httpd.conf"
+    echo "<Location /cool_framework>" >>  "$path/www/conf/httpd.conf"
+    echo "SetHandler cool_framework" >> "$path/www/conf/httpd.conf"
+    echo "</Location>" >> "$path/www/conf/httpd.conf"
+    echo "Done. Reload the server and access http://localhost/cool_framework"
+    popd
 }
 
 main() {
@@ -186,6 +225,7 @@ main() {
     local static=0
     local buildsys="Unix Makefiles"
     local update="OFF"
+    local apache_path=""
 
     if [[ -z "$1" ]]; then
         just_make
@@ -223,6 +263,9 @@ main() {
                 ;;
             --ninja)
                 buildsys="Ninja"
+                ;;
+            --apache=*)
+                apache_path="${opt##*=}"
                 ;;
             --verbose)
                 verbose=1
@@ -362,6 +405,8 @@ main() {
             cd ../..
         fi
     fi
+
+    [[ -d "$apache_path" ]] && build_apache "$apache_path"
 }
 
 main $@
