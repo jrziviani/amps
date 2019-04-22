@@ -513,7 +513,15 @@ TEST_F (compiler_test, test_success_insert)
     result_content.assign((std::istreambuf_iterator<char>(result_file)),
                            std::istreambuf_iterator<char>());
 
-    EXPECT_THAT(result_content, rendered);
+    std::ifstream result_file_order("code.insert.result.order");
+    string result_content_order;
+    result_file_order.seekg(0, std::ios::end);
+    result_content_order.reserve(result_file_order.tellg());
+    result_file_order.seekg(0, std::ios::beg);
+    result_content_order.assign((std::istreambuf_iterator<char>(result_file_order)),
+                                 std::istreambuf_iterator<char>());
+
+    EXPECT_THAT(rendered, testing::AnyOf(result_content, result_content_order));
 }
 
 TEST_F (compiler_test, test_cycle_insert_1)
