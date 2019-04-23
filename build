@@ -422,6 +422,8 @@ main() {
     fi
 
     [[ -d "$apache_path" ]] && build_apache "$apache_path"
+
+    exit 0
 }
 
 main $@
