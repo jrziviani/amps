@@ -25,23 +25,27 @@ add_executable(amps_test
 target_link_libraries(amps_test LINK_PUBLIC ${CMAKE_DL_LIBS} gmock_main)
 
 if (UNIX)
-	add_custom_target(coverage
-		COMMAND ${CMAKE_MAKE_PROGRAM} test
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	)
+    option(with-gcovr "with-gcovr" OFF)
 
-	add_custom_command(TARGET coverage
-		COMMAND gcovr --root ${CMAKE_SOURCE_DIR}/src
-			          --object-directory ${CMAKE_BINARY_DIR}/test
-				      --html --html-details -o coverage.html
-		COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
-		COMMAND ${CMAKE_COMMAND} -E echo ' Coverage test generated, results at '
-		COMMAND ${CMAKE_COMMAND} -E echo ' file://${CMAKE_BINARY_DIR}/test/coverage.html '
-		COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
-	)
+    add_custom_target(coverage
+        COMMAND ${CMAKE_MAKE_PROGRAM} test
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
 
-	add_dependencies(coverage amps_test)
-	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES coverage)
+    if (with-gcovr)
+        add_custom_command(TARGET coverage
+            COMMAND gcovr --root ${CMAKE_SOURCE_DIR}/src
+            --object-directory ${CMAKE_BINARY_DIR}/test
+            --html --html-details -o coverage.html
+            COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
+            COMMAND ${CMAKE_COMMAND} -E echo ' Coverage test generated, results at '
+            COMMAND ${CMAKE_COMMAND} -E echo ' file://${CMAKE_BINARY_DIR}/test/coverage.html '
+            COMMAND ${CMAKE_COMMAND} -E echo '---------------------------------------------------------'
+        )
+    endif(with-gcovr)
+
+    add_dependencies(coverage amps_test)
+    set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES coverage)
 endif()
 
 add_test(NAME test COMMAND amps_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin/test)

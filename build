@@ -89,6 +89,7 @@ coverage() {
     local debug="$2"
     local verbose="$3"
     local buildsys="$4"
+    local gcovr="$5"
 
     [[ -d googletest-build ]] || update="ON"
     [[ -d googletest-src ]] || update="ON"
@@ -98,6 +99,7 @@ coverage() {
                -Denable-test=ON \
                -Denable-static="$static" \
                -G"$buildsys" \
+               -Dwith-gcovr="$gcovr" \
                -Dupdate-gtest="$update" ../../..
     fi
 
@@ -106,12 +108,13 @@ coverage() {
                -Denable-test=ON \
                -Denable-static="$static" \
                -G"$buildsys" \
+               -Dwith-gcovr="$gcovr" \
                -Dupdate-gtest="$update" ../../..
     fi
 
     [[ $? -eq 0 ]] || exit 1
-    [[ "$verbose" == 1 ]] && VERBOSE=1 make coverage || \
-        make coverage
+    [[ "$verbose" == 1 ]] && VERBOSE=1 cmake --build . -- coverage || \
+        cmake --build . -- coverage
 }
 
 usage() {
@@ -131,6 +134,7 @@ usage() {
             --linux         for Linux
             --windows       for Windows
             --update        update googletest
+            --gcovr         generate test coverage (requires --test, linux only)
             --verbose       build verbose mode
             --ninja         build with ninja (unix make by default)
             --apache=PATH   build the apache example module (path to dev apache required)
@@ -173,8 +177,9 @@ build_test() {
     local debug="$2"
     local verbose="$3"
     local buildsys="$4"
+    local gcovr="$5"
 
-    coverage "$static" "$debug" "$verbose" "$buildsys"
+    coverage "$static" "$debug" "$verbose" "$buildsys" "$gcovr"
 }
 
 build_apache() {
@@ -223,6 +228,7 @@ main() {
     local verbose=0
     local binary=0
     local static=0
+    local gcovr="OFF"
     local buildsys="Unix Makefiles"
     local update="OFF"
     local apache_path=""
@@ -270,6 +276,9 @@ main() {
             --verbose)
                 verbose=1
                 ;;
+            --gcovr)
+                gcovr="ON";
+                ;;
             --help)
                 usage 0 "$0" ""
                 ;;
@@ -278,6 +287,12 @@ main() {
                 ;;
         esac
     done
+
+    if [[ "$gcovr" == "ON" && "$test" == 0 ]]
+    then
+        echo "gcovr option can be eanbled with --test only, disabling it"
+        gcovr="OFF";
+    fi
 
     [[ "$clear" == 1 ]] && clean
 
@@ -330,7 +345,7 @@ main() {
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
-                build_test "$static" 0 "$update" "$buildsys"
+                build_test "$static" 0 "$update" "$buildsys" "OFF"
                 cd ..
                 cp -a release/bin/* ../../bin/windows/release
 
@@ -339,7 +354,7 @@ main() {
                 mkdir -p ../../bin/windows/debug
                 mkdir -p debug
                 cd debug
-                build_test "$static" 1 "$update" "$buildsys"
+                build_test "$static" 1 "$update" "$buildsys" "OFF"
                 cd ..
                 cp -a debug/bin/* ../../bin/windows/debug
             fi
@@ -389,7 +404,7 @@ main() {
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
-                build_test "$static" 0 "$update" "$buildsys"
+                build_test "$static" 0 "$update" "$buildsys" "$gcovr"
                 cd ..
                 cp -a release/bin/* ../../bin/linux/release
 
@@ -398,7 +413,7 @@ main() {
                 mkdir -p ../../bin/linux/debug
                 mkdir -p debug
                 cd debug
-                build_test "$static" 1 "$update" "$buildsys"
+                build_test "$static" 1 "$update" "$buildsys" "$gcovr"
                 cd ..
                 cp -a debug/bin/* ../../bin/linux/debug
             fi
