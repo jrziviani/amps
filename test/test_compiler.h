@@ -429,6 +429,41 @@ TEST_F (compiler_test, test_if_variables)
 
             case 3:
                 EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 4:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 5:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 6:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 7:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 8:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, false);
+                break;
+
+            case 9:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
+                EXPECT_THAT(branches.back().taken, true);
+                break;
+
+            case 10:
+                EXPECT_THAT(branches.back().type, amps::token_types::IF);
                 EXPECT_THAT(branches.back().taken, false);
                 break;
         }
@@ -441,7 +476,7 @@ TEST_F (compiler_test, test_if_variables)
 
     EXPECT_THAT(error_.get_error_msg(0), "Error: map[error] not found. Line: 2");
     EXPECT_THAT(error_.get_error_msg(1), "Error: vec[80] not found. Line: 4");
-    EXPECT_THAT(error_.get_error_msg(2), "Error: unexpected token found: MINUS. Line: 6");
+    EXPECT_THAT(error_.get_error_msg(2), "Error: unexpected token found: MINUS. Line: 20");
 }
 
 TEST_F (compiler_test, test_insert)

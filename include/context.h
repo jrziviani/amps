@@ -43,6 +43,7 @@ namespace amps
         object stack_pop();
         bool stack_empty() const;
         bool stack_pop_bool_or(bool opt);
+        bool stack_pop_resolve_bool();
         void stack_push(const object_t &obj);
         void stack_clear();
         bool stack_push_from_environment(const std::string &key);
@@ -147,6 +148,30 @@ namespace amps
         }
 
         return result.value().get_bool_or(opt);
+    }
+
+    inline bool context::stack_pop_resolve_bool()
+    {
+        object result = stack_.pop();
+        if (result == std::nullopt) {
+            return false;
+        }
+
+        if (result.value().get_type() == vobject_types::BOOL) {
+            return result.value().get_bool_or(false);
+        }
+        else if (result.value().get_type() == vobject_types::NUMBER) {
+            if (result.value().get_number_or(0) == 0) {
+                return false;
+            }
+        }
+        else if (result.value().get_type() == vobject_types::STRING) {
+            if (result.value().get_string_or("").size() == 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     inline void context::environment_setup(const user_map &data)

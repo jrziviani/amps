@@ -455,7 +455,7 @@ namespace amps
             return false;
         }
 
-        bool ret = context_.stack_pop_bool_or(false);
+        bool ret = context_.stack_pop_resolve_bool();
         branches_.push_back(branch{token_types::IF, ret});
 
         if (inspect_) {
@@ -826,9 +826,11 @@ namespace amps
                 return true;
             }
 
-            // evaluate a simple variable
+            // evaluate a simple variable. Variable was already evaluated
+            // (context_.environment_is_key_defined(id) above, so we can just
+            // push true
             else {
-                context_.stack_push_from_environment(id);
+                context_.stack_push(object_t(true));
             }
 
             return true;
