@@ -165,7 +165,7 @@ namespace amps
             result_ += to_string(num);
         }
         else {
-            result_ = (!result.value().get_bool_or(false)) ? "false" : "true";
+            result_ += (!result.value().get_bool_or(false)) ? "false" : "true";
         }
 
         return true;
@@ -827,10 +827,9 @@ namespace amps
             }
 
             // evaluate a simple variable. Variable was already evaluated
-            // (context_.environment_is_key_defined(id) above, so we can just
-            // push true
+            // (context_.environment_is_key_defined(id) above
             else {
-                context_.stack_push(object_t(true));
+                context_.stack_push_from_environment(id);
             }
 
             return true;

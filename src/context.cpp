@@ -19,6 +19,12 @@ namespace amps
                 stack_push(object_t(var));
             }
 
+            // object exists but it's not a simple number or string
+            // evaluate it to true to represent that it's valid
+            else {
+                stack_push(object_t(true));
+            }
+
             return true;
         }, environment_[key]);
     }
