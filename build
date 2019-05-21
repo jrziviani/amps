@@ -223,6 +223,7 @@ main() {
     local test=0
     local clear=0
     local debug=0
+    local release=0
     local windows=0
     local linux=0
     local verbose=0
@@ -251,6 +252,9 @@ main() {
                 ;;
             --clear)
                 clear=1
+                ;;
+            --release)
+                release=1
                 ;;
             --debug)
                 debug=1
@@ -316,7 +320,7 @@ main() {
             cd .build/windows
 
             # generate release version
-            if [[ "$debug" == 0 ]]; then
+            if [[ "$debug" == 0 || "$release" == 1 ]]; then
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
@@ -341,7 +345,7 @@ main() {
             cd .build/windows
 
             # generate release version
-            if [[ "$debug" == 0 ]]; then
+            if [[ "$debug" == 0 || "$release" == 1 ]]; then
                 mkdir -p ../../bin/windows/release
                 mkdir -p release
                 cd release
@@ -374,7 +378,7 @@ main() {
             cd .build/linux
 
             # generate release version
-            if [[ "$debug" == 0 ]]; then
+            if [[ "$debug" == 0 || "$release" == 1 ]]; then
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
@@ -400,7 +404,7 @@ main() {
             cd .build/linux
 
             # generate release version
-            if [[ "$debug" == 0 ]]; then
+            if [[ "$debug" == 0 || "$release" == 1 ]]; then
                 mkdir -p ../../bin/linux/release
                 mkdir -p release
                 cd release
