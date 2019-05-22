@@ -776,6 +776,48 @@ namespace amps
             context_.stack_push(object_t(false));
             return true;
         }
+        else if (it.match(token_types::SIZE)) {
+            if (it.match(token_types::LEFT_PAREN)) {
+                if (!parse_expression(it)) {
+                    return false;
+                }
+
+                if (context_.stack_empty()) {
+                    return false;
+                }
+
+                vobject_types tp = context_.stack_top_type();
+                if (tp == vobject_types::STRING) {
+                    std::string data = context_.stack_pop_string_or("");
+                    context_.stack_push(object_t(data.size()));
+                }
+                else if (tp == vobject_types::NUMBER) {
+                    number_t data = context_.stack_pop_number_or(0);
+                    context_.stack_push(object_t(sizeof(data)));
+                }
+                else if (tp == vobject_types::BOOL) {
+                    context_.stack_pop();
+                    context_.stack_push(object_t(number_t(1)));
+                }
+                else if (tp == vobject_types::OBJECT) {
+                    std::string data = context_.stack_pop_string_or("");
+                    context_.stack_push(object_t(context_.environment_get_size(data)));
+                }
+
+                if (!it.match(token_types::RIGHT_PAREN)) {
+                    error_.critical("size expects a closing ')'. Line: ",
+                                    it.range().line);
+                    return false;
+                }
+
+                return true;
+            }
+            else {
+                error_.critical("size expects an opening '('", ". Line: ",
+                                it.range().line);
+                return false;
+            }
+        }
         else if (it.match(token_types::IDENTIFIER)) {
             string id = it.look_back().value().value_or("");
             if (!context_.environment_is_key_defined(id)) {
@@ -814,7 +856,7 @@ namespace amps
                 }
                 else {
                     context_.stack_pop();
-                    context_.stack_push(object_t(std::string("<null>")));
+                    context_.stack_push(object_t(std::string("")));
                 }
 
                 if (!it.match(token_types::RIGHT_BRACKET)) {

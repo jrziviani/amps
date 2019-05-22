@@ -15,14 +15,15 @@ namespace amps
             using T = std::decay_t<decltype(var)>;
 
             if constexpr (std::is_same_v<T, number_t> ||
-                          std::is_same_v<T, std::string>) {
+                          std::is_same_v<T, std::string> ||
+                          std::is_same_v<T, bool>) {
                 stack_push(object_t(var));
             }
 
             // object exists but it's not a simple number or string
             // evaluate it to true to represent that it's valid
             else {
-                stack_push(object_t(true));
+                stack_push(object_t(key, vobject_types::OBJECT));
             }
 
             return true;
@@ -43,7 +44,7 @@ namespace amps
 
                 // make sure we're not accessing out of bounds item
                 if (index >= var.size()) {
-                    stack_push(object_t(std::string("<null>")));
+                    stack_push(object_t(std::string("")));
                     return false;
                 }
                 else {
@@ -58,6 +59,11 @@ namespace amps
     bool context::stack_push_from_environment(const std::string &key,
                                               const std::string &user_key)
     {
+        if (key.size() == 0 || user_key.size() == 0) {
+            stack_push(object_t(std::string("")));
+            return false;
+        }
+
         // simply push the value of environment_[key] onto the stack
         // this method handles map<string, string> and map<string, number_t>
         // values, so the key of that map is also required
@@ -69,7 +75,7 @@ namespace amps
 
                 // make sure that the key exists
                 if (var.find(user_key) == var.end()) {
-                    stack_push(object_t(std::string("<null>")));
+                    stack_push(object_t(std::string("")));
                     return false;
                 }
                 else {

@@ -97,6 +97,10 @@ namespace amps
 
     inline object context::stack_top() const
     {
+        if (stack_.empty()) {
+            return std::nullopt;
+        }
+
         return stack_.look_back();
     }
 
