@@ -419,12 +419,12 @@ TEST_F (compiler_test, test_if_variables)
 
             case 1:
                 EXPECT_THAT(branches.back().type, amps::token_types::IF);
-                EXPECT_THAT(branches.back().taken, false);
+                EXPECT_THAT(branches.back().taken, true);
                 break;
 
             case 2:
                 EXPECT_THAT(branches.back().type, amps::token_types::IF);
-                EXPECT_THAT(branches.back().taken, false);
+                EXPECT_THAT(branches.back().taken, true);
                 break;
 
             case 3:
@@ -477,6 +477,115 @@ TEST_F (compiler_test, test_if_variables)
     EXPECT_THAT(error_.get_error_msg(0), "Error: map[error] not found. Line: 2");
     EXPECT_THAT(error_.get_error_msg(1), "Error: vec[80] not found. Line: 4");
     EXPECT_THAT(error_.get_error_msg(2), "Error: unexpected token found: MINUS. Line: 20");
+}
+
+TEST_F (compiler_test, test_sizes)
+{
+    using amps::context;
+    using amps::branch;
+    using amps::user_map;
+    using std::unordered_map;
+    using std::vector;
+    using std::string;
+
+    set_file("code.size.1");
+
+    unordered_map<string, string> capitals = {
+        {"Brasil", "Brasilia"},
+        {"USA", "Washington"},
+        {"France", "Paris"},
+        {"England", "London"},
+        {"Portugal", "Lisbon"}};
+
+    vector<string> values = {"Brasilia", "Washington", "Paris", "London", "Lisbon"};
+
+    int64_t step = 0;
+    compiler_.set_callback([&step](
+                const context &ctx,
+                const vector<branch>&) {
+        if (!ctx.environment_is_key_defined("map") ||
+            !ctx.environment_is_key_defined("vec")) {
+            return;
+        }
+
+        switch (step) {
+            case 0:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 6);
+                break;
+
+            case 1:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 5);
+                break;
+
+            case 2:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 8);
+                break;
+
+            case 3:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 5);
+                break;
+
+            case 4:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 10);
+                break;
+
+            case 5:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 0);
+                break;
+
+            case 6:
+                EXPECT_THAT(ctx.stack_top(), testing::Eq(std::nullopt));
+                break;
+
+            case 7:
+                EXPECT_THAT(ctx.stack_top(), testing::Eq(std::nullopt));
+                break;
+
+            case 8:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 8);
+                break;
+
+            case 9:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 1);
+                break;
+
+            case 10:
+                EXPECT_THAT(ctx.stack_top(), testing::Eq(std::nullopt));
+                break;
+
+            case 12:
+                EXPECT_THAT(ctx.stack_top().value().get_string_or(""), "Brasilia");
+                break;
+
+            case 14:
+                EXPECT_THAT(ctx.stack_top().value().get_string_or(""), "Washington");
+                break;
+
+            case 16:
+                EXPECT_THAT(ctx.stack_top().value().get_string_or(""), "Paris");
+                break;
+
+            case 18:
+                EXPECT_THAT(ctx.stack_top().value().get_string_or(""), "London");
+                break;
+
+            case 20:
+                EXPECT_THAT(ctx.stack_top().value().get_string_or(""), "Lisbon");
+                break;
+
+            case 21:
+                EXPECT_THAT(ctx.stack_top().value().get_number_or(0), 18);
+                break;
+        }
+
+        step++;
+    });
+
+    user_map um {{"map", capitals}, {"vec", values}};
+    disable_stdout(compile(um));
+
+    EXPECT_THAT(error_.get_error_msg(0), "Error: vec[51] not found. Line: 5");
+    EXPECT_THAT(error_.get_error_msg(1), "Error: unexpected token found: RIGHT_PAREN. Line: 10");
 }
 
 TEST_F (compiler_test, test_insert)
